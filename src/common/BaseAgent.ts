@@ -36,9 +36,7 @@ export const BaseAgent = factory(class implements IAgent {
     for await (const message of this.messages) {
       result.push(message)
     }
-    console.log({
-      agentName: this.params.agentName,
-      clientId: this.params.clientId,
+    this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} history`, {
       history: result,
     });
     return result;
@@ -69,23 +67,23 @@ export const BaseAgent = factory(class implements IAgent {
       this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} tool call begin`);
       for (const tool of response.message.tool_calls) {
         const targetFn = this.params.tools?.find((t) => t.function.name === tool.function.name);
+        if (targetFn) {
+          const output = await targetFn.implementation(tool.function.arguments);
+          const content = output.toString();
+          this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} functionName=${tool.function.name} tool call end output=${content}`);
+          await this.messages.push(response.message)
+          await this.messages.push({
+            role: 'tool',
+            content,
+          });
+        }
         if (!targetFn) {
-          throw new Error(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} tool call error: tool not found ${tool.function.name}`);
+          this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} functionName=${tool.function.name} function not found`);
         }
-        const output = await targetFn.implementation(tool.function.arguments);
-        const content = output.toString();
-        this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} tool call end output=${content}`);
-        await this.messages.push(response.message)
-        await this.messages.push({
-          role: 'tool',
-          content,
-        });
-        {
-          const response = await this.getChat();
-          const result = response.message.content;
-          this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
-          return result;
-        }
+        const finalResponse = await this.getChat();
+        const result = finalResponse .message.content;
+        this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
+        return result;
       }
     }
     const result = response.message.content;

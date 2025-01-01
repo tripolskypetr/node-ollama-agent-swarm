@@ -11,11 +11,15 @@ export class LoggerService {
     private _debug = false;
 
     public log = (...args: any[]) => {
+        this._debug && console.log(JSON.stringify(args, null , 2), "\n\n");
         this._logger.log(...args);
     }
 
     public debug = (...args: any[]) => {
-        this._debug && this._logger.log(...args);
+        if (this._debug) {
+            console.log(JSON.stringify(args, null , 2), "\n\n");
+            this._logger.log(...args);
+        }
     };
 
     public setPrefix = (prefix: string) => {

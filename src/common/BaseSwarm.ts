@@ -44,7 +44,6 @@ export const BaseSwarm = factory(
       if (!agent) {
         agent = DEFAULT_AGENT;
       }
-      console.log({ agent})
       return agentMap[agent];
     };
 

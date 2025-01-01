@@ -4,6 +4,7 @@ import { serveStatic } from '@hono/node-server/serve-static'
 import "./routes/session";
 
 import { app, injectWebSocket } from './config/app';
+import { ioc } from './services';
 
 app.use('/*', serveStatic({ root: './public' }))
 
@@ -15,3 +16,5 @@ const server = serve({
 injectWebSocket(server)
 
 console.log("Server listening on http://localhost:80");
+
+ioc.loggerService.setDebug(true);

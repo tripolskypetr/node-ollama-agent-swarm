@@ -19,7 +19,7 @@ export class NavigateToSalesAgentTool {
     type: "function",
     function: {
       name: "navigate_to_sales_agent_tool",
-      description: "Navigate to sales intent",
+      description: "Navigate to sales agent",
       parameters: {
         type: "object",
         properties: {},

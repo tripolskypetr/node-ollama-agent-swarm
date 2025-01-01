@@ -20,7 +20,7 @@ export class NavigateToRefundAgentTool {
         type: "function",
         function: {
             name: "navigate_to_refund_agent_tool",
-            description: "Navigate to refund intent",
+            description: "Navigate to refund agent",
             parameters: {
                 type: "object",
                 properties: {},
