@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>node-ollama-agent</title>
+    <meta encoding="utf-8" />
+  </head>
+  <body>
+    <button>Start Listening</button>
+    <pre></pre>
+    <p></p>
+    <script>
+      const pre = document.querySelector("pre");
+      const button = document.querySelector("button");
+      const status = document.querySelector("p");
+      /*var socket = new WebSocket('ws://localhost:8080');
+            socket.onopen = function() {
+                console.log('Connected to server');
+            };
+            socket.onmessage = function(message) {
+                console.log('Received message: ' + message.data);
+            };
+            socket.onclose = function() {
+                console.log('Connection closed');
+            };
+            socket.onerror = function(error) {
+                console.log('Error: ' + error);
+            };*/
+
+      function getVoices() {
+        return new Promise((resolve) => {
+          let voices = speechSynthesis.getVoices();
+          if (voices.length) {
+            resolve(voices);
+          } else {
+            speechSynthesis.onvoiceschanged = () => {
+              voices = speechSynthesis.getVoices();
+              resolve(voices);
+            };
+          }
+        });
+      }
+
+      async function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        const voices = await getVoices();
+        utterance.voice = voices.find(
+          (voice) => voice.name === "Google US English"
+        );
+        speechSynthesis.speak(utterance);
+      }
+
+      const main = () => {
+        const recognition = new webkitSpeechRecognition();
+        recognition.lang = "en-US";
+
+        recognition.onstart = () => {
+          status.innerHTML = "Listening...";
+        };
+
+        recognition.onend = () => {
+          status.innerHTML = "";
+          recognition.start();
+        };
+
+        recognition.onresult = (event) => {
+          console.log(event);
+          const transcript = event.results[0][0].transcript;
+          pre.innerHTML += `You said: ${transcript}\n`;
+          console.log(transcript);
+          speak(transcript);
+        };
+
+        recognition.start();
+        button.style.display = "none";
+      };
+
+      button.addEventListener("click", main);
+    </script>
+  </body>
+</html>
