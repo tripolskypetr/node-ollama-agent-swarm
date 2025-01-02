@@ -11,6 +11,7 @@ const AGENT_PROMPT = `You are to triage a users request, and call a tool to tran
 There are two agents you can transfer to: navigate_to_refund_agent_tool and navigate_to_sales_agent_tool.
 Untill calling any function, you must ask the user for their agent.
 Before navigation make sure you choose well. Do not spam function executions
+Navigate immideatly without asking additional questions specific to the target agent topic
 `;
 
 export class TriageAgentService implements IAgent {
