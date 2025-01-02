@@ -16,6 +16,16 @@
 
 5. Each chat session has it's [unique system prompt](https://platform.openai.com/docs/api-reference/messages/createMessage#messages-createmessage-role)
 
-## As a result
+**The result**
 
 The model system prompt can be dynamically changed based on the user behaviour. The model interact with the external api based on the user requests
+
+## Getting started
+
+```bash
+ollama run mistral:7b
+npm install
+npm start
+```
+
+The entry point of the backend application is [src/services/public/ConnectionPublicService.ts](ConnectionPublicService.ts)
