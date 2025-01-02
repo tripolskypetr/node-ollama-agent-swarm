@@ -12,6 +12,7 @@ import NavigateToRefundAgentTool from "./tools/NavigateToRefundAgentTool";
 import NavigateToSalesAgentTool from "./tools/NavigateToSalesAgentTool";
 import ConnectionPublicService from "./public/ConnectionPublicService";
 import ConnectionPrivateService from "./private/ConnectionPrivateService";
+import HistoryPrivateService from "./private/HistoryPrivateService";
 
 const baseServices = {
     loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -25,6 +26,7 @@ const publicServices = {
 
 const privateServices = {
     connectionPrivateService: inject<ConnectionPrivateService>(TYPES.connectionPrivateService),
+    historyPrivateService: inject<HistoryPrivateService>(TYPES.historyPrivateService),
 };
 
 const logicServices = {

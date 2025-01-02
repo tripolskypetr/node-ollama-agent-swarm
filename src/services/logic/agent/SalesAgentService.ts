@@ -34,6 +34,12 @@ export class SalesAgentService implements IAgent {
     return await agent.execute(input);
   };
 
+  public beginChat = async () => {
+    this.loggerService.logCtx("salesAgentService beginChat");
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.beginChat();
+  };
+
   public dispose = async () => {
     this.loggerService.logCtx("salesAgentService dispose");
     const agent = this.getClientAgent(this.contextService.context.clientId);

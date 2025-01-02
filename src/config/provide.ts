@@ -13,6 +13,7 @@ import RootSwarmService from 'src/services/logic/RootSwarmService';
 import NavigateToRefundAgentTool from 'src/services/tools/NavigateToRefundAgentTool';
 import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentTool';
 import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
+import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
 
 {
     provide(TYPES.loggerService, () => new LoggerService());
@@ -26,6 +27,7 @@ import ConnectionPrivateService from 'src/services/private/ConnectionPrivateServ
 
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
+    provide(TYPES.historyPrivateService, () => new HistoryPrivateService());
 }
 
 {

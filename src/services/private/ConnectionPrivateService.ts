@@ -39,14 +39,14 @@ export class ConnectionPrivateService implements IConnection {
   };
 
   public dispose = async () => {
-    this.loggerService.log("connectionPrivateService dispose");
-    return this.getClientConnection(
+    this.loggerService.logCtx("connectionPrivateService dispose");
+    return await this.getClientConnection(
       this.contextService.context.clientId
     ).dispose();
   };
 
   public emit = async (outgoing: string, agentName: AgentName) => {
-    this.loggerService.log("connectionPrivateService emit", {
+    this.loggerService.logCtx("connectionPrivateService emit", {
       outgoing,
     });
     return await this.getClientConnection(

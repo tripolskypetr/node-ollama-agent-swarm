@@ -18,6 +18,7 @@ export interface ISwarm {
   getAgentName(): Promise<AgentName>;
   getAgent(): Promise<Agent>;
   setAgent(agentName: AgentName): Promise<void>;
+  dispose(): Promise<void>;
 }
 
 export const BaseSwarm = factory(
@@ -26,9 +27,17 @@ export const BaseSwarm = factory(
 
     constructor(readonly params: ISwarmParams) {}
 
+    _beginChat = async () => {
+      this.loggerService.debugCtx(
+        `BaseSwarm swarmName=${this.params.swarmName} getAgentName`
+      );
+      const agent = await this.getAgent();
+      await agent.beginChat();
+    };
+
     getAgentName = async () => {
-      this.loggerService.debug(
-        `BaseSwarm clientId=${this.params.clientId} swarmName=${this.params.swarmName} getAgentName`
+      this.loggerService.debugCtx(
+        `BaseSwarm swarmName=${this.params.swarmName} getAgentName`
       );
       let agent = await swarmMap.get(this.params.clientId);
       if (!agent) {
@@ -38,8 +47,8 @@ export const BaseSwarm = factory(
     };
 
     getAgent = async () => {
-      this.loggerService.debug(
-        `BaseSwarm clientId=${this.params.clientId} swarmName=${this.params.swarmName} getAgent`
+      this.loggerService.debugCtx(
+        `BaseSwarm swarmName=${this.params.swarmName} getAgent`
       );
       const agent = await this.getAgentName();
       const agentMap = getAgentMap();
@@ -47,15 +56,16 @@ export const BaseSwarm = factory(
     };
 
     setAgent = async (agentName: AgentName) => {
-      this.loggerService.debug(
-        `BaseSwarm clientId=${this.params.clientId} swarmName=${this.params.swarmName} setAgent agentName=${agentName}`
+      this.loggerService.debugCtx(
+        `BaseSwarm swarmName=${this.params.swarmName} setAgent agentName=${agentName}`
       );
       await swarmMap.set(this.params.clientId, agentName);
+      await this._beginChat();
     };
 
     dispose = async () => {
-      this.loggerService.debug(
-        `BaseAgent clientId=${this.params.clientId} swarmName=${this.params.swarmName} dispose`
+      this.loggerService.debugCtx(
+        `BaseAgent swarmName=${this.params.swarmName} dispose`
       );
       await swarmMap.delete(this.params.clientId);
     };

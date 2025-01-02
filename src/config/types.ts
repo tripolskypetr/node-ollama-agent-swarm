@@ -10,6 +10,7 @@ const publicServices = {
 
 const privateServices = {
     connectionPrivateService: Symbol('connectionPrivateService'),
+    historyPrivateService: Symbol('historyPrivateService'),
 };
 
 const logicServices = {
