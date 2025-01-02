@@ -4,13 +4,14 @@ import { inject, init } from "../core/di";
 import type LoggerService from "./base/LoggerService";
 import ErrorService from "./base/ErrorService";
 import { TContextService } from "./base/ContextService";
-import ConnectionService from "./global/ConnectionService";
 import RefundsAgentService from "./logic/agent/RefundsAgentService";
 import SalesAgentService from "./logic/agent/SalesAgentService";
 import TriageAgentService from "./logic/agent/TriageAgentService";
 import RootSwarmService from "./logic/RootSwarmService";
 import NavigateToRefundAgentTool from "./tools/NavigateToRefundAgentTool";
 import NavigateToSalesAgentTool from "./tools/NavigateToSalesAgentTool";
+import ConnectionPublicService from "./public/ConnectionPublicService";
+import ConnectionPrivateService from "./private/ConnectionPrivateService";
 
 const baseServices = {
     loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -18,8 +19,12 @@ const baseServices = {
     contextService: inject<TContextService>(TYPES.contextService),
 };
 
-const globalServices = {
-    connectionService: inject<ConnectionService>(TYPES.connectionService),
+const publicServices = {
+    connectionPublicService: inject<ConnectionPublicService>(TYPES.connectionPublicService),
+};
+
+const privateServices = {
+    connectionPrivateService: inject<ConnectionPrivateService>(TYPES.connectionPrivateService),
 };
 
 const logicServices = {
@@ -38,7 +43,8 @@ init();
 
 export const ioc = {
     ...baseServices,
-    ...globalServices,
+    ...publicServices,
+    ...privateServices,
     ...logicServices,
     ...toolsServices,
 };

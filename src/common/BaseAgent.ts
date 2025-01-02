@@ -6,7 +6,7 @@ import { CC_OLLAMA_HOST, CC_OLLAMA_MESSAGES, CC_OLLAMA_MODEL } from 'src/config/
 import TYPES from 'src/config/types';
 import { inject } from 'src/core/di';
 import LoggerService from 'src/services/base/LoggerService';
-import { AgentName } from './BaseSwarm';
+import { AgentName } from '../utils/getAgentMap';
 
 const ollama = new Ollama({ host: CC_OLLAMA_HOST });
 

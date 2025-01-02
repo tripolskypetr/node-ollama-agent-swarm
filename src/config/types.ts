@@ -4,8 +4,12 @@ const baseServices = {
     contextService: Symbol('contextService'),
 };
 
-const globalServices = {
-    connectionService: Symbol('connectionService'),
+const publicServices = {
+    connectionPublicService: Symbol('connectionPublicService'),
+};
+
+const privateServices = {
+    connectionPrivateService: Symbol('connectionPrivateService'),
 };
 
 const logicServices = {
@@ -22,7 +26,8 @@ const toolsServices = {
 
 export const TYPES = {
     ...baseServices,
-    ...globalServices,
+    ...publicServices,
+    ...privateServices,
     ...logicServices,
     ...toolsServices,
 };

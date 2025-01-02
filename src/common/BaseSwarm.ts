@@ -3,19 +3,9 @@ import { PubsubMapAdapter, singleshot } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
-import RefundsAgentService from "src/services/logic/agent/RefundsAgentService";
-import SalesAgentService from "src/services/logic/agent/SalesAgentService";
-import TriageAgentService from "src/services/logic/agent/TriageAgentService";
+import getAgentMap, { Agent, AgentName } from '../utils/getAgentMap';
 
 const swarmMap = new PubsubMapAdapter<AgentName>();
-
-const getAgentMap = singleshot(() => ({
-    "refunds-agent": inject<RefundsAgentService>(TYPES.refundsAgentService),
-    "sales-agent": inject<SalesAgentService>(TYPES.salesAgentService),
-    "triage-agent": inject<TriageAgentService>(TYPES.triageAgentService),
-}));
-
-export type AgentName = keyof ReturnType<typeof getAgentMap>;
 
 const DEFAULT_AGENT = "triage-agent";
 
@@ -25,7 +15,7 @@ interface ISwarmParams {
 }
 
 export interface ISwarm {
-  getAgent(): Promise<ReturnType<typeof getAgentMap>[AgentName]>;
+  getAgent(): Promise<Agent>;
   setAgent(agentName: AgentName): Promise<void>;
 }
 

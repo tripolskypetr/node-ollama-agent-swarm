@@ -5,13 +5,14 @@ import TYPES from './types';
 import LoggerService from '../services/base/LoggerService';
 import ErrorService from '../services/base/ErrorService';
 import ContextService from 'src/services/base/ContextService';
-import ConnectionService from 'src/services/global/ConnectionService';
+import ConnectionPublicService from 'src/services/public/ConnectionPublicService';
 import RefundsAgentService from 'src/services/logic/agent/RefundsAgentService';
 import SalesAgentService from 'src/services/logic/agent/SalesAgentService';
 import TriageAgentService from 'src/services/logic/agent/TriageAgentService';
 import RootSwarmService from 'src/services/logic/RootSwarmService';
 import NavigateToRefundAgentTool from 'src/services/tools/NavigateToRefundAgentTool';
 import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentTool';
+import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
 
 {
     provide(TYPES.loggerService, () => new LoggerService());
@@ -20,7 +21,11 @@ import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentToo
 }
 
 {
-    provide(TYPES.connectionService, () => new ConnectionService());
+    provide(TYPES.connectionPublicService, () => new ConnectionPublicService());
+}
+
+{
+    provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
 }
 
 {

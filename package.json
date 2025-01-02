@@ -1,5 +1,5 @@
 {
-  "name": "node-ollama-agent",
+  "name": "node-ollama-agent-swarm",
   "module": "index.ts",
   "type": "module",
   "scripts": {

@@ -9,17 +9,17 @@ app.get("/api/v1/session/:clientId", upgradeWebSocket((ctx) => {
 
   return {
     onOpen(_, ws) {
-      const recieve = ioc.connectionService.connect(clientId, async (outgoing) => {
+      const receive = ioc.connectionPublicService.connect(clientId, async (outgoing) => {
         ws.send(JSON.stringify(outgoing));
       });
-      incomingSubject.subscribe(recieve);
+      incomingSubject.subscribe(receive);
     },
     onMessage(event) {
       const data = JSON.parse(event.data.toString());
       incomingSubject.next(data);
     },
     onClose: () => {
-      ioc.connectionService.dispose(clientId);
+      ioc.connectionPublicService.dispose(clientId);
     },
   }
 }));
