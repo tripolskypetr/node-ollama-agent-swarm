@@ -2,6 +2,8 @@
 
 > [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for Ollama
 
+![screenshot](./screenshot.png)
+
 ## Main concept
 
 1. Several chat sessions called agents [execute tool calling](https://ollama.com/blog/tool-support)
