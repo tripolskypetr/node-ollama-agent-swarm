@@ -25,12 +25,12 @@ export class RefundsAgentService implements IAgent {
       }) {})()
   );
 
-  public createCompletion = async (input: string): Promise<string> => {
+  public execute = async (input: string) => {
     this.loggerService.logCtx("refundsAgentService createCompletion", {
       input,
     });
     const agent = this.getClientAgent(this.contextService.context.clientId);
-    return await agent.createCompletion(input);
+    return await agent.execute(input);
   };
 
   public dispose = async () => {

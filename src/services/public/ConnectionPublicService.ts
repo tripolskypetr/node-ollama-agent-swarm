@@ -5,6 +5,7 @@ import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import { IConnection } from "src/common/BaseConnection";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
+import { AgentName } from "src/utils/getAgentMap";
 
 export interface IMessage {
   clientId: string;
@@ -63,11 +64,11 @@ export class ConnectionPublicService implements TConnection {
     );
   };
 
-  public emit = async (clientId: string, outgoing: string) => {
+  public emit = async (clientId: string, outgoing: string, agentName: AgentName) => {
     this.loggerService.log("connectionPublicService emit", { clientId, outgoing });
     return await ContextService.runInContext(
       async () => {
-        return await this.connectionPrivateService.emit(outgoing);
+        return await this.connectionPrivateService.emit(outgoing, agentName);
       },
       {
         clientId,

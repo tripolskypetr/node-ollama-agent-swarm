@@ -18,6 +18,12 @@ export class RootSwarmService implements ISwarm {
           }) { }
     );
 
+    public getAgentName = async () => {
+        this.loggerService.logCtx("rootSwarmService getAgentName");
+        const swarm = this.getClientSwarm(this.contextService.context.clientId);
+        return await swarm.getAgentName();
+    };
+
     public getAgent = async () => {
         this.loggerService.logCtx("rootSwarmService getAgent");
         const swarm = this.getClientSwarm(this.contextService.context.clientId);

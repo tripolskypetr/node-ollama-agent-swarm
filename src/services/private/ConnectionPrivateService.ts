@@ -4,6 +4,7 @@ import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import BaseConnection, { IConnection } from "src/common/BaseConnection";
+import { AgentName } from "src/utils/getAgentMap";
 
 export interface IMessage {
   clientId: string;
@@ -44,13 +45,13 @@ export class ConnectionPrivateService implements IConnection {
     ).dispose();
   };
 
-  public emit = async (outgoing: string) => {
+  public emit = async (outgoing: string, agentName: AgentName) => {
     this.loggerService.log("connectionPrivateService emit", {
       outgoing,
     });
     return await this.getClientConnection(
       this.contextService.context.clientId
-    ).emit(outgoing);
+    ).emit(outgoing, agentName);
   };
 }
 

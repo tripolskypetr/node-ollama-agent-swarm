@@ -3,7 +3,7 @@ import { Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
-import getAgentMap from "../utils/getAgentMap";
+import getAgentMap, { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
 
 interface IConnectionParams {
@@ -22,7 +22,7 @@ export type SendMessageFn = (outgoing: IMessage) => Promise<void>;
 export interface IConnection {
   dispose(): Promise<void>;
   connect(connector: SendMessageFn): SendMessageFn;
-  emit(outgoing: string): Promise<void>;
+  emit(outgoing: string, agentName: AgentName): Promise<void>;
 }
 
 export const BaseConnection = factory(
@@ -43,7 +43,7 @@ export const BaseConnection = factory(
         connectionName: this.params.connectionName,
       });
       const agent = await this.rootSwarmService.getAgent();
-      return await agent.createCompletion(message);
+      return await agent.execute(message);
     };
 
     connect = (
@@ -59,19 +59,17 @@ export const BaseConnection = factory(
         this.loggerService.debugCtx("BaseConnection connect call", {
           connectionName: this.params.connectionName,
         });
-        const output = await this.execute(incoming.data);
-        await connector({
-          clientId: this.params.clientId,
-          stamp: Date.now().toString(),
-          data: output,
-        });
+        await this.execute(incoming.data);
       };
     };
 
-    emit = async (outgoing: string) => {
+    emit = async (outgoing: string, agentName: AgentName) => {
       this.loggerService.debugCtx("BaseConnection emit", {
         connectionName: this.params.connectionName,
       });
+      if (await this.rootSwarmService.getAgentName() !== agentName) {
+        return;
+      }
       await this.outgoingSubject.next({
         clientId: this.params.clientId,
         stamp: Date.now().toString(),

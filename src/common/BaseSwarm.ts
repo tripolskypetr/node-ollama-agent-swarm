@@ -15,6 +15,7 @@ interface ISwarmParams {
 }
 
 export interface ISwarm {
+  getAgentName(): Promise<AgentName>;
   getAgent(): Promise<Agent>;
   setAgent(agentName: AgentName): Promise<void>;
 }
@@ -25,15 +26,23 @@ export const BaseSwarm = factory(
 
     constructor(readonly params: ISwarmParams) {}
 
+    getAgentName = async () => {
+      this.loggerService.debug(
+        `BaseSwarm clientId=${this.params.clientId} swarmName=${this.params.swarmName} getAgentName`
+      );
+      let agent = await swarmMap.get(this.params.clientId);
+      if (!agent) {
+        agent = DEFAULT_AGENT;
+      }
+      return agent;
+    };
+
     getAgent = async () => {
       this.loggerService.debug(
         `BaseSwarm clientId=${this.params.clientId} swarmName=${this.params.swarmName} getAgent`
       );
-      let agent = await swarmMap.get(this.params.clientId);
+      const agent = await this.getAgentName();
       const agentMap = getAgentMap();
-      if (!agent) {
-        agent = DEFAULT_AGENT;
-      }
       return agentMap[agent];
     };
 

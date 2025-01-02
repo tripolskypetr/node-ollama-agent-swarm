@@ -7,6 +7,7 @@ import TYPES from 'src/config/types';
 import { inject } from 'src/core/di';
 import LoggerService from 'src/services/base/LoggerService';
 import { AgentName } from '../utils/getAgentMap';
+import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
 
 const ollama = new Ollama({ host: CC_OLLAMA_HOST });
 
@@ -22,12 +23,13 @@ interface IAgentParams {
 }
 
 export interface IAgent {
-  createCompletion: (input: string) => Promise<string>;
+  execute: (input: string) => Promise<void>;
 }
 
 export const BaseAgent = factory(class implements IAgent {
 
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+  readonly connectionPrivateService = inject<ConnectionPrivateService>(TYPES.connectionPrivateService);
 
   messages = new PubsubArrayAdapter<Message>(CC_OLLAMA_MESSAGES);
 
@@ -51,7 +53,7 @@ export const BaseAgent = factory(class implements IAgent {
     tools:  this.params.tools?.map((t) => omit(t, 'implementation')),
   });
 
-  createCompletion = singlerun(async (message: string) => {
+  execute = singlerun(async (message: string) => {
     this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion begin message=${message}`);
     if (await not(this.messages.length())) {
       await this.messages.push({
@@ -84,7 +86,8 @@ export const BaseAgent = factory(class implements IAgent {
         const finalResponse = await this.getChat();
         const result = finalResponse .message.content;
         this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
-        return result;
+        await this.connectionPrivateService.emit(result, this.params.agentName);
+        return;
       }
     }
     if (!response.message.tool_calls) {
@@ -92,7 +95,8 @@ export const BaseAgent = factory(class implements IAgent {
     }
     const result = response.message.content;
     this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
-    return result;
+    await this.connectionPrivateService.emit(result, this.params.agentName);
+    return;
   });
 
   dispose = async () => {

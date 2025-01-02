@@ -20,7 +20,8 @@ export class NavigateToSalesAgentTool {
     this.loggerService.logCtx("navigateToSalesAgentTool call");
     await this.rootSwarmService.setAgent("sales-agent");
     this.connectionPrivateService.emit(
-      "Hello. I am a sales agent. Please provide me with the necessary information to process your sale."
+      "Hello. I am a sales agent. Please provide me with the necessary information to process your sale.",
+      "sales-agent"
     );
     return "done";
   };

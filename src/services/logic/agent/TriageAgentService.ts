@@ -39,12 +39,12 @@ export class TriageAgentService implements IAgent {
       }) {})()
   );
 
-  public createCompletion = async (input: string): Promise<string> => {
-    this.loggerService.logCtx("triageAgentService createCompletion", {
+  public execute = async (input: string) => {
+    this.loggerService.logCtx("triageAgentService execute", {
       input,
     });
     const agent = this.getClientAgent(this.contextService.context.clientId);
-    return await agent.createCompletion(input);
+    return await agent.execute(input);
   };
 
   public dispose = async () => {
