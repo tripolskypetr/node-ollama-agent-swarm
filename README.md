@@ -28,4 +28,4 @@ npm install
 npm start
 ```
 
-The entry point of the backend application is [ConnectionPublicService.ts](src/services/public/ConnectionPublicService.ts)
+The entry point of the backend application is [ConnectionPublicService.ts](src/services/public/ConnectionPublicService.ts). The agent swarm with system prompts is placed in the [logic](src/services/logic) folder. The ai functions are places in the [tools](src/services/tools) folder 
