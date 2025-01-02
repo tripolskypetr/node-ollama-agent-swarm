@@ -7,7 +7,7 @@ export class LoggerService {
   protected readonly contextService = inject<TContextService>(
     TYPES.contextService
   );
-  private _logger = createLogger("node-ollanma-agent.log");
+  private _logger = createLogger("node-ollama-agent-swarm.log");
 
   private _debug = false;
 
@@ -34,7 +34,7 @@ export class LoggerService {
   };
 
   public setPrefix = (prefix: string) => {
-    this._logger = createLogger(`node-ollanma-agent_${prefix}.log`);
+    this._logger = createLogger(`node-ollama-agent-swarm_${prefix}.log`);
   };
 
   public setDebug = (debug: boolean) => {
