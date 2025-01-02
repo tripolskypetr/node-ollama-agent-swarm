@@ -65,7 +65,7 @@ export class ConnectionPublicService implements TConnection {
   };
 
   public emit = async (clientId: string, outgoing: string, agentName: AgentName) => {
-    this.loggerService.log("connectionPublicService emit", { clientId, outgoing });
+    this.loggerService.log("connectionPublicService emit", { clientId, outgoing, agentName });
     return await ContextService.runInContext(
       async () => {
         return await this.connectionPrivateService.emit(outgoing, agentName);

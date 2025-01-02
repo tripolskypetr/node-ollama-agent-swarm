@@ -49,6 +49,7 @@ export class ConnectionPrivateService implements IConnection {
   public emit = async (outgoing: string, agentName: AgentName) => {
     this.loggerService.logCtx("connectionPrivateService emit", {
       outgoing,
+      agentName,
     });
     return await this.getClientConnection(
       this.contextService.context.clientId
