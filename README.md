@@ -1,6 +1,6 @@
 # 🔥 node-ollama-agent-swarm 
 
-> [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for [OllamaJS](https://github.com/ollama/ollama-js)
+> [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for [OllamaJS](https://github.com/ollama/ollama-js). Includes TTS synthesis and speech recognition for simplified testing and interaction.
 
 ![screenshot](./screenshot.png)
 
