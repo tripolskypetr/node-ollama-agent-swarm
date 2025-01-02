@@ -1,6 +1,6 @@
 # 🔥 node-ollama-agent-swarm 
 
-> [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for Ollama
+> [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for [OllamaJS](https://github.com/ollama/ollama-js)
 
 ![screenshot](./screenshot.png)
 
