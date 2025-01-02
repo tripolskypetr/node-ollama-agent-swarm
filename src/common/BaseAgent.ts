@@ -46,6 +46,7 @@ export const BaseAgent = factory(class implements IAgent {
 
   getChat = async () => await ollama.chat({
     model: CC_OLLAMA_MODEL,
+    keep_alive: "24h",
     messages: await this.getMessageList(),
     tools:  this.params.tools?.map((t) => omit(t, 'implementation')),
   });
@@ -85,6 +86,9 @@ export const BaseAgent = factory(class implements IAgent {
         this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
         return result;
       }
+    }
+    if (!response.message.tool_calls) {
+      this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion no tool calls detected`);
     }
     const result = response.message.content;
     this.loggerService.debug(`BaseAgent clientId=${this.params.clientId} agentName=${this.params.agentName} completion end result=${result}`);
