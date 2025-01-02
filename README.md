@@ -28,4 +28,4 @@ npm install
 npm start
 ```
 
-The entry point of the backend application is [src/services/public/ConnectionPublicService.ts](ConnectionPublicService.ts)
+The entry point of the backend application is [ConnectionPublicService.ts](src/services/public/ConnectionPublicService.ts)
