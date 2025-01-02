@@ -50,10 +50,11 @@ export class HistoryPrivateService implements THistory {
 
   public dispose = async (agentName: AgentName) => {
     this.loggerService.logCtx("historyPrivateService dispose");
-    return await this.getClientHistory(
+    await this.getClientHistory(
       this.contextService.context.clientId,
       agentName,
     ).dispose();
+    this.getClientHistory.clear(this.contextService.context.clientId);
   };
 }
 
