@@ -1,8 +1,8 @@
 import { factory } from 'di-factory';
-import { not, PubsubArrayAdapter, singlerun } from 'functools-kit';
-import { omit } from 'lodash-es';
-import { Ollama, Message, Tool } from 'ollama'
-import { CC_OLLAMA_HOST, CC_OLLAMA_MESSAGES, CC_OLLAMA_MODEL } from 'src/config/params';
+import { not, singlerun, Subject } from 'functools-kit';
+import { omit, } from 'lodash-es';
+import { Ollama, Tool } from 'ollama'
+import { CC_OLLAMA_HOST, CC_OLLAMA_MODEL } from 'src/config/params';
 import TYPES from 'src/config/types';
 import { inject } from 'src/core/di';
 import LoggerService from 'src/services/base/LoggerService';
@@ -13,7 +13,7 @@ import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
 const ollama = new Ollama({ host: CC_OLLAMA_HOST });
 
 export interface AgentTool extends Tool {
-  implementation(...args: any[]): Promise<string> | string;
+  implementation(agentName: AgentName, ...args: any[]): Promise<void>;
 }
 
 interface IAgentParams {
@@ -26,7 +26,14 @@ interface IAgentParams {
 export interface IAgent {
   execute: (input: string) => Promise<void>;
   beginChat: () => Promise<void>;
+  commitToolOutput(content: string): Promise<void>;
+  commitSystemMessage(message: string): Promise<void>;
 }
+
+/**
+ * @description `ask for agent function` in `llama3.1:8b` to troubleshoot
+ */
+const TOOL_CALL_EXCEPTION_PROMPT = "Start the conversation";
 
 export const BaseAgent = factory(class implements IAgent {
 
@@ -34,6 +41,8 @@ export const BaseAgent = factory(class implements IAgent {
   readonly connectionPrivateService = inject<ConnectionPrivateService>(TYPES.connectionPrivateService);
 
   readonly historyPrivateService = inject<HistoryPrivateService>(TYPES.historyPrivateService);
+
+  readonly _toolCommitSubject = new Subject<void>();
 
   constructor(readonly params: IAgentParams) { }
 
@@ -46,10 +55,27 @@ export const BaseAgent = factory(class implements IAgent {
 
   beginChat = async () => {
     this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} beginChat`);
-    await this.historyPrivateService.push(this.params.agentName,{
+    await this.historyPrivateService.push(this.params.agentName, {
       'role': 'system',
       'content': this.params.prompt.trim(),
     });
+  };
+
+  commitSystemMessage = async (message: string): Promise<void> => {
+    this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} commitSystemMessage`);
+    await this.historyPrivateService.push(this.params.agentName, {
+      'role': 'system',
+      'content': message.trim(),
+    });
+  };
+
+  commitToolOutput = async (content: string): Promise<void> => {
+    this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} commitToolOutput content=${content}`);
+    await this.historyPrivateService.push(this.params.agentName, {
+      role: 'tool',
+      content,
+    });
+    await this._toolCommitSubject.next();
   };
 
   execute = singlerun(async (message: string) => {
@@ -66,23 +92,28 @@ export const BaseAgent = factory(class implements IAgent {
       this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} tool call begin`);
       for (const tool of response.message.tool_calls) {
         const targetFn = this.params.tools?.find((t) => t.function.name === tool.function.name);
+        await this.historyPrivateService.push(this.params.agentName, response.message);
         if (targetFn) {
-          const output = await targetFn.implementation(tool.function.arguments);
-          const content = output.toString();
-          this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end output=${content}`);
-          await this.historyPrivateService.push(this.params.agentName,response.message)
-          await this.historyPrivateService.push(this.params.agentName,{
-            role: 'tool',
-            content,
-          });
+          await targetFn.implementation(this.params.agentName, tool.function.arguments);
+          this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`);
+          await this._toolCommitSubject.toPromise();
+          this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end`);
+          return;
         }
-        if (!targetFn) {
-          this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} function not found`);
+        this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool function not found`);
+        await this.historyPrivateService.clear(this.params.agentName);
+        await this.beginChat();
+        await this.historyPrivateService.push(this.params.agentName, {
+          role: 'user',
+          content: TOOL_CALL_EXCEPTION_PROMPT,
+        });
+        {
+          const response = await this.getChat();
+          const result = response.message.content;
+          await this.historyPrivateService.push(this.params.agentName, response.message);
+          this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute end result=${result}`);
+          await this.connectionPrivateService.emit(result, this.params.agentName);
         }
-        const finalResponse = await this.getChat();
-        const result = finalResponse .message.content;
-        this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute end result=${result}`);
-        await this.connectionPrivateService.emit(result, this.params.agentName);
         return;
       }
     }
@@ -90,8 +121,9 @@ export const BaseAgent = factory(class implements IAgent {
       this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute no tool calls detected`);
     }
     const result = response.message.content;
-    this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute end result=${result}`);
-    await this.connectionPrivateService.emit(result, this.params.agentName);
+    await this.historyPrivateService.push(this.params.agentName, response.message);
+    this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute end result=${result} history cleared`);
+    result && await this.connectionPrivateService.emit(result, this.params.agentName);
     return;
   });
 

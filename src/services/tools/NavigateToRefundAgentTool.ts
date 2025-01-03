@@ -4,6 +4,7 @@ import RootSwarmService from "../logic/RootSwarmService";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
+import { AgentName } from "src/utils/getAgentMap";
 
 export class NavigateToRefundAgentTool {
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
@@ -13,14 +14,14 @@ export class NavigateToRefundAgentTool {
     TYPES.connectionPrivateService
   );
 
-  call = async () => {
-    this.loggerService.logCtx("navigateToRefundAgentTool call");
+  call = async (agentName: AgentName) => {
+    this.loggerService.logCtx("navigateToRefundAgentTool call", { agentName });
+    await this.connectionPrivateService.commitToolOutput("Navigation success", agentName);
     await this.rootSwarmService.setAgent("refunds-agent");
     this.connectionPrivateService.emit(
       "Hello. I am a refund agent. Please provide me with the necessary information to process your refund.",
       "refunds-agent"
     );
-    return "done";
   };
 
   getToolSignature = (): AgentTool => ({

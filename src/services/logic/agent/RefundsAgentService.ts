@@ -25,6 +25,22 @@ export class RefundsAgentService implements IAgent {
       }) {})()
   );
 
+  commitSystemMessage = async (message: string) => {
+    this.loggerService.logCtx("refundsAgentService commitSystemMessage", {
+      message,
+    });
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.commitSystemMessage(message);
+  };
+
+  commitToolOutput = async (content: string) => {
+    this.loggerService.logCtx("refundsAgentService commitToolOutput", {
+      content,
+    });
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.commitToolOutput(content);
+  };
+
   public execute = async (input: string) => {
     this.loggerService.logCtx("refundsAgentService execute", {
       input,

@@ -48,6 +48,22 @@ export class HistoryPrivateService implements THistory {
     ).push(message);
   };
 
+  public pop = async (agentName: AgentName) => {
+    this.loggerService.logCtx("historyPrivateService pop");
+    return await this.getClientHistory(
+      this.contextService.context.clientId,
+      agentName,
+    ).pop();
+  };
+
+  public clear = async (agentName: AgentName) => {
+    this.loggerService.logCtx("historyPrivateService clear");
+    return await this.getClientHistory(
+      this.contextService.context.clientId,
+      agentName,
+    ).clear();
+  };
+
   public dispose = async (agentName: AgentName) => {
     this.loggerService.logCtx("historyPrivateService dispose");
     await this.getClientHistory(

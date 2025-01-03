@@ -22,6 +22,8 @@ export type SendMessageFn = (outgoing: IMessage) => Promise<void>;
 export interface IConnection {
   dispose(): Promise<void>;
   connect(connector: SendMessageFn): SendMessageFn;
+  commitToolOutput(content: string, agentName: AgentName): Promise<void>;
+  commitSystemMessage(message: string, agentName: AgentName): Promise<void>;
   emit(outgoing: string, agentName: AgentName): Promise<void>;
 }
 
@@ -46,6 +48,32 @@ export const BaseConnection = factory(
       return await agent.execute(message);
     };
 
+    commitToolOutput = async (content: string, agentName: AgentName) => {
+      this.loggerService.debugCtx("BaseConnection commitToolOutput", {
+        content,
+        connectionName: this.params.connectionName,
+        agentName,
+      });
+      if (await this.rootSwarmService.getAgentName() !== agentName) {
+        return;
+      }
+      const agent = await this.rootSwarmService.getAgent();
+      return await agent.commitToolOutput(content);
+    };
+
+    commitSystemMessage = async (message: string, agentName: AgentName) => {
+      this.loggerService.debugCtx("BaseConnection commitSystemMessage", {
+        message,
+        connectionName: this.params.connectionName,
+        agentName,
+      });
+      if (await this.rootSwarmService.getAgentName() !== agentName) {
+        return;
+      }
+      const agent = await this.rootSwarmService.getAgent();
+      return await agent.commitSystemMessage(message);
+    };
+
     connect = (
       connector: (outgoing: IMessage) => void | Promise<void>
     ) => {
@@ -66,6 +94,7 @@ export const BaseConnection = factory(
     emit = async (outgoing: string, agentName: AgentName) => {
       this.loggerService.debugCtx("BaseConnection emit", {
         connectionName: this.params.connectionName,
+        agentName,
       });
       if (await this.rootSwarmService.getAgentName() !== agentName) {
         return;

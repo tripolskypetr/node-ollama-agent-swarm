@@ -5,6 +5,7 @@ import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import { TContextService } from "../base/ContextService";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
+import { AgentName } from "src/utils/getAgentMap";
 
 export class NavigateToSalesAgentTool {
   readonly contextService = inject<TContextService>(TYPES.contextService);
@@ -16,14 +17,14 @@ export class NavigateToSalesAgentTool {
     TYPES.connectionPrivateService
   );
 
-  call = async () => {
-    this.loggerService.logCtx("navigateToSalesAgentTool call");
+  call = async (agentName: AgentName) => {
+    this.loggerService.logCtx("navigateToSalesAgentTool call", { agentName });
+    await this.connectionPrivateService.commitToolOutput("Navigation success", agentName);
     await this.rootSwarmService.setAgent("sales-agent");
     this.connectionPrivateService.emit(
       "Hello. I am a sales agent. Please provide me with the necessary information to process your sale.",
       "sales-agent"
     );
-    return "done";
   };
 
   getToolSignature = (): AgentTool => ({

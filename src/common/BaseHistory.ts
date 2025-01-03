@@ -47,6 +47,23 @@ export const BaseHistory = factory(
       return await this.messages.push(message);
     };
 
+    pop = async () => {
+      this.loggerService.debugCtx(
+        `BaseHistory agentName=${this.params.agentName} pop`,
+      );
+      return await this.messages.pop();
+    };
+
+    clear = async () => {
+      this.loggerService.debugCtx(
+        `BaseHistory agentName=${this.params.agentName} clear`,
+      );
+      while (await this.length()) {
+        await this.pop();
+      }
+    };
+
+
     toArray = async () => {
       const result: Message[] = [];
       for await (const message of this.messages) {

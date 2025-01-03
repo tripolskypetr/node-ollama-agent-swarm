@@ -38,6 +38,26 @@ export class ConnectionPrivateService implements IConnection {
     ).connect(connector);
   };
 
+  public commitToolOutput = async (content: string, agentName: AgentName) => {
+    this.loggerService.logCtx("connectionPrivateService commitToolOutput", {
+      content,
+      agentName,
+    });
+    return await this.getClientConnection(
+      this.contextService.context.clientId
+    ).commitToolOutput(content, agentName);
+  };
+
+  public commitSystemMessage = async (message: string, agentName: AgentName) => {
+    this.loggerService.logCtx("connectionPrivateService commitSystemMessage", {
+      message,
+      agentName,
+    });
+    return await this.getClientConnection(
+      this.contextService.context.clientId
+    ).commitSystemMessage(message, agentName);
+  };
+
   public dispose = async () => {
     this.loggerService.logCtx("connectionPrivateService dispose");
     await this.getClientConnection(

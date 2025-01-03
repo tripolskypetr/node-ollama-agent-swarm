@@ -40,6 +40,22 @@ export class SalesAgentService implements IAgent {
     return await agent.beginChat();
   };
 
+  commitSystemMessage = async (message: string) => {
+    this.loggerService.logCtx("salesAgentService commitSystemMessage", {
+      message,
+    });
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.commitSystemMessage(message);
+  };
+
+  commitToolOutput = async (content: string) => {
+    this.loggerService.logCtx("salesAgentService commitToolOutput", {
+      content,
+    });
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.commitToolOutput(content);
+  };
+
   public dispose = async () => {
     this.loggerService.logCtx("salesAgentService dispose");
     const agent = this.getClientAgent(this.contextService.context.clientId);

@@ -52,6 +52,36 @@ export class ConnectionPublicService implements TConnection {
     );
   };
 
+  public commitToolOutput = async (clientId: string, content: string, agentName: AgentName) => {
+    this.loggerService.logCtx("connectionPublicService commitToolOutput", {
+      content,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.connectionPrivateService.commitToolOutput(content, agentName);
+      },
+      {
+        clientId,
+      }
+    );
+  };
+
+  public commitSystemMessage = async (clientId: string, message: string, agentName: AgentName) => {
+    this.loggerService.logCtx("connectionPublicService commitSystemMessage", {
+      message,
+      agentName,
+    });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.connectionPrivateService.commitSystemMessage(message, agentName);
+      },
+      {
+        clientId,
+      }
+    );
+  };
+
   public dispose = async (clientId: string) => {
     this.loggerService.log("connectionPublicService dispose", { clientId });
     return await ContextService.runInContext(
