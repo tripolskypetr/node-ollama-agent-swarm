@@ -5,16 +5,11 @@ import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import getAgentMap, { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
+import IMessage from "src/model/Message.model";
 
 interface IConnectionParams {
   connectionName: string;
   clientId: string;
-}
-
-export interface IMessage {
-  clientId: string;
-  stamp: string;
-  data: string;
 }
 
 export type SendMessageFn = (outgoing: IMessage) => Promise<void>;
@@ -102,6 +97,7 @@ export const BaseConnection = factory(
       await this.outgoingSubject.next({
         clientId: this.params.clientId,
         stamp: Date.now().toString(),
+        agentName,
         data: outgoing,
       });
     };

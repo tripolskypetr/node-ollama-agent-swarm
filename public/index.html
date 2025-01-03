@@ -56,7 +56,7 @@
 
       socket.addEventListener("message", (event) => {
         const data = JSON.parse(event.data);
-        pre.innerHTML += `AI said: ${data.data}\n\n`;
+        pre.innerHTML += `AI said (${data.agentName}): ${data.data}\n\n`;
         speak(data.data);
       });
 

@@ -5,12 +5,7 @@ import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import BaseConnection, { IConnection } from "src/common/BaseConnection";
 import { AgentName } from "src/utils/getAgentMap";
-
-export interface IMessage {
-  clientId: string;
-  stamp: string;
-  data: string;
-}
+import IMessage from "src/model/Message.model";
 
 export type SendMessageFn = (
   outgoing: IMessage

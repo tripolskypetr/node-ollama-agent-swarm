@@ -6,12 +6,7 @@ import LoggerService from "../base/LoggerService";
 import { IConnection } from "src/common/BaseConnection";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
-
-export interface IMessage {
-  clientId: string;
-  stamp: string;
-  data: string;
-}
+import IMessage from "src/model/Message.model";
 
 type TConnection = {
   [key in keyof IConnection]: any;
