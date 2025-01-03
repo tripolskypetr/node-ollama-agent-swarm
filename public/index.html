@@ -41,9 +41,6 @@
       }
 
       function getSessionId() {
-
-        return generateUUID();
-
         let sessionId = sessionStorage.getItem("session_id");
         if (!sessionId) {
           sessionId = generateUUID();
@@ -52,7 +49,7 @@
         return sessionId;
       }
 
-      const clientId = getSessionId();
+      const clientId = generateUUID();
 
       const socket = new WebSocket(`/api/v1/session/${clientId}`);
       const recognition = new webkitSpeechRecognition();
