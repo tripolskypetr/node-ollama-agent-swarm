@@ -6,6 +6,8 @@
 
 ## Main concept
 
+![schema](./schema.png)
+
 1. Several chat sessions (agents) [execute tool calls](https://ollama.com/blog/tool-support). Each agent can use different model, for example, [mistral 7b](https://ollama.com/library/mistral) for small talk, [nemotron](https://ollama.com/library/nemotron) for business conversation
 
 2. The agent swarm navigate messages to the active chat session (agent) for each `WebSocket` channel [by using `clientId` url parameter](src/routes/session.ts#L5)
