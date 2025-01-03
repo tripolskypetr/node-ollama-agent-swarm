@@ -39,7 +39,7 @@ export const BaseAgent = factory(class implements IAgent {
 
   getChat = async () => await ollama.chat({
     model: CC_OLLAMA_MODEL,
-    keep_alive: "24h",
+    keep_alive: "1h",
     messages: await this.historyPrivateService.toArray(this.params.agentName),
     tools:  this.params.tools?.map((t) => omit(t, 'implementation')),
   });
