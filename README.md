@@ -14,7 +14,7 @@
 
 3. The active chat session (agent) in the swarm could be changed [by executing function tool](https://platform.openai.com/docs/assistants/tools/function-calling) 
 
-4. All chat sessions [share the same chat history](https://platform.openai.com/docs/api-reference/messages/getMessage) for all agents. Each client chat history keep the last 25 messages with rotation. The chat history implementation is designed to store messages in async storage (Redis, Mongo or MariaDB)
+4. All chat sessions [share the same chat history](https://platform.openai.com/docs/api-reference/messages/getMessage) for all agents. Each client chat history keep the last 25 messages with rotation. The chat history implementation is designed to store messages in memory storage (Redis, Tarantool)
 
 5. Each chat session (agent) has it's [unique system prompt](https://platform.openai.com/docs/api-reference/messages/createMessage#messages-createmessage-role)
 
