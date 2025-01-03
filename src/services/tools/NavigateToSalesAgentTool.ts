@@ -1,4 +1,4 @@
-import { AgentTool } from "src/common/BaseAgent";
+import { IAgentTool } from "src/common/BaseAgent";
 import { inject } from "src/core/di";
 import RootSwarmService from "../logic/RootSwarmService";
 import TYPES from "src/config/types";
@@ -6,8 +6,11 @@ import LoggerService from "../base/LoggerService";
 import { TContextService } from "../base/ContextService";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
+import { z } from "zod";
 
-export class NavigateToSalesAgentTool {
+const PARAMETER_SCHEMA = z.object({}).strict();
+
+export class NavigateToSalesAgentTool implements IAgentTool {
   readonly contextService = inject<TContextService>(TYPES.contextService);
 
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
@@ -16,6 +19,12 @@ export class NavigateToSalesAgentTool {
   readonly connectionPrivateService = inject<ConnectionPrivateService>(
     TYPES.connectionPrivateService
   );
+
+  validate = async (agentName: AgentName, params: Record<string, unknown>) => {
+    this.loggerService.logCtx("navigateToSalesAgentTool validate", { agentName, params });
+    const { success } = await PARAMETER_SCHEMA.spa(params);
+    return success;
+  };
 
   call = async (agentName: AgentName) => {
     this.loggerService.logCtx("navigateToSalesAgentTool call", { agentName });
@@ -27,7 +36,8 @@ export class NavigateToSalesAgentTool {
     );
   };
 
-  getToolSignature = (): AgentTool => ({
+  getToolSignature = () => ({
+    validate: this.validate,
     implementation: this.call,
     type: "function",
     function: {

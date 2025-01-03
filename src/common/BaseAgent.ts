@@ -12,15 +12,24 @@ import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
 
 const ollama = new Ollama({ host: CC_OLLAMA_HOST });
 
-export interface AgentTool extends Tool {
-  implementation(agentName: AgentName, ...args: any[]): Promise<void>;
+export interface IAgentTool<T = Record<string, unknown>> {
+  call(agentName: AgentName, params: T): Promise<void>;
+  validate(agentName: AgentName, params: T): Promise<boolean> | boolean;
+  getToolSignature(): AgentToolSignature<T>;
+}
+
+export interface AgentToolSignature<T = Record<string, unknown>> extends Tool, Omit<IAgentTool<T>, keyof {
+  call: never;
+  getToolSignature: never;
+}> {
+  implementation(agentName: AgentName, params: T): Promise<void>;
 }
 
 interface IAgentParams {
   agentName: AgentName;
   clientId: string;
   prompt: string;
-  tools?: AgentTool[];
+  tools?: AgentToolSignature[];
 }
 
 export interface IAgent {
@@ -93,7 +102,7 @@ export const BaseAgent = factory(class implements IAgent {
       for (const tool of response.message.tool_calls) {
         const targetFn = this.params.tools?.find((t) => t.function.name === tool.function.name);
         await this.historyPrivateService.push(this.params.agentName, response.message);
-        if (targetFn) {
+        if (targetFn && await targetFn.validate(this.params.agentName, tool.function.arguments)) {
           await targetFn.implementation(this.params.agentName, tool.function.arguments);
           this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`);
           await this._toolCommitSubject.toPromise();

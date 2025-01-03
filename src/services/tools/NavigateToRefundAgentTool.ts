@@ -1,18 +1,27 @@
-import { AgentTool } from "src/common/BaseAgent";
+import { AgentToolSignature, IAgentTool } from "src/common/BaseAgent";
 import { inject } from "src/core/di";
 import RootSwarmService from "../logic/RootSwarmService";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
+import { z } from "zod";
 
-export class NavigateToRefundAgentTool {
+const PARAMETER_SCHEMA = z.object({}).strict();
+
+export class NavigateToRefundAgentTool implements IAgentTool {
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   readonly connectionPrivateService = inject<ConnectionPrivateService>(
     TYPES.connectionPrivateService
   );
+
+  validate = async (agentName: AgentName, params: Record<string, unknown>) => {
+    this.loggerService.logCtx("navigateToRefundAgentTool validate", { agentName, params });
+    const { success } = await PARAMETER_SCHEMA.spa(params);
+    return success;
+  };
 
   call = async (agentName: AgentName) => {
     this.loggerService.logCtx("navigateToRefundAgentTool call", { agentName });
@@ -24,8 +33,9 @@ export class NavigateToRefundAgentTool {
     );
   };
 
-  getToolSignature = (): AgentTool => ({
+  getToolSignature = () => ({
     implementation: this.call,
+    validate: this.validate,
     type: "function",
     function: {
       name: "navigate_to_refund_agent_tool",
