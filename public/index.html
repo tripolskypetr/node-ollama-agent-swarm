@@ -58,6 +58,7 @@
         const data = JSON.parse(event.data);
         pre.innerHTML += `AI said (${data.agentName}): ${data.data}\n\n`;
         speak(data.data);
+        status.style.visibility = "visible";
       });
 
       socket.onopen = () => {
@@ -85,6 +86,12 @@
         utterance.voice = voices.find(
           (voice) => voice.name === "Google US English"
         );
+        utterance.onstart = () => {
+          recognition.stop();
+        };
+        utterance.onend = () => {
+          recognition.start();
+        };
         speechSynthesis.speak(utterance);
       }
 
@@ -97,20 +104,54 @@
 
         recognition.onend = () => {
           status.innerHTML = "";
-          recognition.start();
+          if (!speechSynthesis.speaking) {
+            recognition.start();
+          }
         };
 
         recognition.onresult = (event) => {
           const transcript = event.results[0][0].transcript;
           pre.innerHTML += `You said: ${transcript}\n\n`;
-          socket.send(JSON.stringify({ 
-            clientId,
-            stamp: Date.now().toString(),
-            data: transcript,
-          }));
+          socket.send(
+            JSON.stringify({
+              clientId,
+              stamp: Date.now().toString(),
+              data: transcript,
+            })
+          );
+          status.style.visibility = "hidden";
         };
 
         recognition.start();
+
+        {
+          let speakingStartTime = null;
+
+          const MAX_SPEAK_DURATION = 10_000;
+
+          const checkSpeak = () => {
+            if (speechSynthesis.speaking) {
+              if (!speakingStartTime) {
+                speakingStartTime = Date.now();
+              }
+              const elapsedTime = Date.now() - speakingStartTime;
+              if (elapsedTime > MAX_SPEAK_DURATION) {
+                speechSynthesis.cancel();
+                speakingStartTime = null;
+              }
+            } else {
+              speakingStartTime = null;
+              try {
+                recognition.start();
+              } catch {}
+            }
+
+            setTimeout(checkSpeak, 1_000);
+          };
+
+          checkSpeak();
+        }
+
         button.style.display = "none";
       };
 
