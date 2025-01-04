@@ -55,7 +55,7 @@ export const BaseAgent = factory(class implements IAgent {
 
   constructor(readonly params: IAgentParams) { }
 
-  getChat = async () => await ollama.chat({
+  getCompletion = async () => await ollama.chat({
     model: CC_OLLAMA_MODEL,
     keep_alive: "1h",
     messages: await this.historyPrivateService.toArray(this.params.agentName),
@@ -96,7 +96,7 @@ export const BaseAgent = factory(class implements IAgent {
       'role': 'user',
       'content': message.trim(),
     });
-    const response = await this.getChat();
+    const response = await this.getCompletion();
     if (response.message.tool_calls) {
       this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} tool call begin`);
       for (const tool of response.message.tool_calls) {
@@ -117,7 +117,7 @@ export const BaseAgent = factory(class implements IAgent {
           content: TOOL_CALL_EXCEPTION_PROMPT,
         });
         {
-          const response = await this.getChat();
+          const response = await this.getCompletion();
           const result = response.message.content;
           await this.historyPrivateService.push(this.params.agentName, response.message);
           this.loggerService.debugCtx(`BaseAgent agentName=${this.params.agentName} execute end result=${result}`);
