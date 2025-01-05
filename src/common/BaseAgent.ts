@@ -47,7 +47,7 @@ interface IAgentParams {
 }
 
 export interface IAgent {
-  execute: (input: string) => Promise<void>;
+  execute: (input: string[]) => Promise<void>;
   beginChat: () => Promise<void>;
   commitToolOutput(content: string): Promise<void>;
   commitSystemMessage(message: string): Promise<void>;
@@ -125,17 +125,20 @@ export const BaseAgent = factory(
       await this._toolCommitSubject.next();
     };
 
-    execute = singlerun(async (message: string) => {
+    execute = singlerun(async (messages: string[]) => {
       this.loggerService.debugCtx(
-        `BaseAgent agentName=${this.params.agentName} execute begin message=${message}`
+        `BaseAgent agentName=${this.params.agentName} execute begin`,
+        { messages }
       );
       if (await not(this.historyPrivateService.length(this.params.agentName))) {
         await this.beginChat();
       }
-      await this.historyPrivateService.push(this.params.agentName, {
-        role: "user",
-        content: message.trim(),
-      });
+      for (const message of messages) {
+        await this.historyPrivateService.push(this.params.agentName, {
+          role: "user",
+          content: message.trim(),
+        });
+      }
       const response = await this.getCompletion();
       if (response.message.tool_calls) {
         this.loggerService.debugCtx(

@@ -39,7 +39,7 @@ export class TriageAgentService implements IAgent {
       }) {})()
   );
 
-  public execute = async (input: string) => {
+  public execute = async (input: string[]) => {
     this.loggerService.logCtx("triageAgentService execute", {
       input,
     });

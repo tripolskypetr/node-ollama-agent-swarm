@@ -41,7 +41,7 @@ export class RefundsAgentService implements IAgent {
     return await agent.commitToolOutput(content);
   };
 
-  public execute = async (input: string) => {
+  public execute = async (input: string[]) => {
     this.loggerService.logCtx("refundsAgentService execute", {
       input,
     });

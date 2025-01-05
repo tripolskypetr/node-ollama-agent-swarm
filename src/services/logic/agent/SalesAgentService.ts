@@ -26,7 +26,7 @@ export class SalesAgentService implements IAgent {
       }) {})()
   );
 
-  public execute = async (input: string) => {
+  public execute = async (input: string[]) => {
     this.loggerService.logCtx("salesAgentService execute", {
       input,
     });

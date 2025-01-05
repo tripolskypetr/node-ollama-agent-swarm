@@ -34,7 +34,7 @@ export const BaseConnection = factory(
 
     constructor(readonly params: IConnectionParams) {}
 
-    execute = async (message: string) => {
+    execute = async (message: string[]) => {
       this.loggerService.debugCtx("BaseConnection execute", {
         message,
         connectionName: this.params.connectionName,
@@ -82,7 +82,7 @@ export const BaseConnection = factory(
         this.loggerService.debugCtx("BaseConnection connect call", {
           connectionName: this.params.connectionName,
         });
-        await this.execute(incoming.data);
+        await this.execute([incoming.data]);
       };
     };
 
