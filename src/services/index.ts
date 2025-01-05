@@ -13,6 +13,13 @@ import NavigateToSalesAgentTool from "./tools/NavigateToSalesAgentTool";
 import ConnectionPublicService from "./public/ConnectionPublicService";
 import ConnectionPrivateService from "./private/ConnectionPrivateService";
 import HistoryPrivateService from "./private/HistoryPrivateService";
+import EmbeddingService from "./api/EmbeddingService";
+import CompletionService from "./api/CompletionService";
+
+const apiServices = {
+    embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
+    completionService: inject<CompletionService>(TYPES.completionService),
+};
 
 const baseServices = {
     loggerService: inject<LoggerService>(TYPES.loggerService),
@@ -44,6 +51,7 @@ const toolsServices = {
 init();
 
 export const ioc = {
+    ...apiServices,
     ...baseServices,
     ...publicServices,
     ...privateServices,

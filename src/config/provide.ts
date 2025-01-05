@@ -14,6 +14,13 @@ import NavigateToRefundAgentTool from 'src/services/tools/NavigateToRefundAgentT
 import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentTool';
 import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
 import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
+import CompletionService from "src/services/api/CompletionService";
+import EmbeddingService from "src/services/api/EmbeddingService";
+
+{
+    provide(TYPES.completionService, () => new CompletionService());
+    provide(TYPES.embeddingService, () => new EmbeddingService());
+}
 
 {
     provide(TYPES.loggerService, () => new LoggerService());

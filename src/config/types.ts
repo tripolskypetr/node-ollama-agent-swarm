@@ -1,3 +1,8 @@
+const apiServices = {
+    completionService: Symbol('completionService'),
+    embeddingService: Symbol('embeddingService'),
+};
+
 const baseServices = {
     loggerService: Symbol('loggerService'),
     errorService: Symbol('errorService'),
@@ -26,6 +31,7 @@ const toolsServices = {
 };
 
 export const TYPES = {
+    ...apiServices,
     ...baseServices,
     ...publicServices,
     ...privateServices,

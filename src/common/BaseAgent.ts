@@ -1,24 +1,16 @@
 import { factory } from "di-factory";
-import { not, singlerun, singleshot, Subject, trycatch } from "functools-kit";
+import { not, singlerun, Subject } from "functools-kit";
 import { omit } from "lodash-es";
-import { Message, Ollama, Tool } from "ollama";
-import {
-  CC_OPENAI_ENABLE,
-  CC_OLLAMA_HOST,
-  CC_OLLAMA_MODEL,
-  CC_OPENAI_API_KEY,
-  CC_OLLAMA_EMIT_TOOL_PROTOCOL,
-} from "src/config/params";
+import { Message, Tool } from "ollama";
+import { CC_OLLAMA_EMIT_TOOL_PROTOCOL } from "src/config/params";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import { AgentName } from "../utils/getAgentMap";
 import ConnectionPrivateService from "src/services/private/ConnectionPrivateService";
 import HistoryPrivateService from "src/services/private/HistoryPrivateService";
-import OpenAI from "openai";
-
-const getOllama = singleshot(() => new Ollama({ host: CC_OLLAMA_HOST }));
-const getOpenAI = singleshot(() => new OpenAI({ apiKey: CC_OPENAI_API_KEY }));
+import CompletionService from "src/services/api/CompletionService";
+import { TContextService } from "src/services/base/ContextService";
 
 /**
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
@@ -28,29 +20,6 @@ const TOOL_PROTOCOL_PROMPT = `For each function call, return a json object with 
 {"name": <function-name>, "arguments": <args-json-object>}
 </tool_call>
 `;
-
-const getOpenAiCompletion = async (messages: any[]) => {
-  const { choices } = await getOpenAI().chat.completions.create({
-    model: "gpt-4o",
-    store: false,
-    messages,
-  });
-  const [{ message }] = choices;
-  return {
-    message: {
-      ...message,
-      tool_calls: message?.tool_calls.map((tool) => ({
-        ...tool,
-        function: {
-          ...tool.function,
-          arguments: trycatch(() => JSON.parse(tool.function.arguments), {
-            defaultValue: {},
-          }),
-        },
-      })),
-    },
-  };
-};
 
 export interface IAgentTool<T = Record<string, unknown>> {
   call(agentName: AgentName, params: T): Promise<void>;
@@ -92,6 +61,10 @@ const TOOL_CALL_EXCEPTION_PROMPT = "Start the conversation";
 export const BaseAgent = factory(
   class implements IAgent {
     readonly loggerService = inject<LoggerService>(TYPES.loggerService);
+    readonly contextService = inject<TContextService>(TYPES.contextService);
+    readonly completionService = inject<CompletionService>(
+      TYPES.completionService
+    );
     readonly connectionPrivateService = inject<ConnectionPrivateService>(
       TYPES.connectionPrivateService
     );
@@ -105,23 +78,14 @@ export const BaseAgent = factory(
     constructor(readonly params: IAgentParams) {}
 
     getCompletion = async (): Promise<{ message: Message }> => {
-      if (CC_OPENAI_ENABLE) {
-        this.loggerService.debugCtx(
-          `BaseAgent agentName=${this.params.agentName} using openai`
-        );
-        const messages = await this.historyPrivateService.toArray(
-          this.params.agentName
-        );
-        return await getOpenAiCompletion(messages);
-      }
-      return await getOllama().chat({
-        model: CC_OLLAMA_MODEL,
-        keep_alive: "1h",
-        messages: await this.historyPrivateService.toArray(
-          this.params.agentName
-        ),
-        tools: this.params.tools?.map((t) => omit(t, "implementation")),
-      });
+      this.loggerService.debugCtx(
+        `BaseAgent agentName=${this.params.agentName} getCompletion`
+      );
+      return await this.completionService.getCompletion(
+        this.contextService.context,
+        await this.historyPrivateService.toArray(this.params.agentName),
+        this.params.tools?.map((t) => omit(t, "implementation"))
+      );
     };
 
     beginChat = async () => {
@@ -134,9 +98,9 @@ export const BaseAgent = factory(
       });
       if (CC_OLLAMA_EMIT_TOOL_PROTOCOL) {
         await this.historyPrivateService.push(this.params.agentName, {
-          role: 'system',
+          role: "system",
           content: TOOL_PROTOCOL_PROMPT,
-        })
+        });
       }
     };
 
