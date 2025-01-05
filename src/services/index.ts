@@ -50,3 +50,5 @@ export const ioc = {
     ...logicServices,
     ...toolsServices,
 };
+
+Object.assign(globalThis, { ioc });

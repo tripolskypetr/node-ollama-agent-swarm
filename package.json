@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
+    "repl": "dotenv -e .env -- npm run build && node -e \"globalThis[Symbol.for('error-handler-installed')] = 1; import('./scripts/repl.mjs')\" --interactive",
     "start": "dotenv -e .env -- npm run build && node ./build/index.mjs",
     "start:debug": "dotenv -e .env -- npm run build && node --inspect-brk ./build/index.mjs",
     "build": "dotenv -e .env -- rollup -c"
@@ -28,6 +29,7 @@
     "di-scoped": "1.0.11",
     "di-singleton": "1.0.5",
     "functools-kit": "1.0.55",
+    "get-moment-stamp": "1.1.1",
     "hono": "4.6.13",
     "lodash-es": "4.17.21",
     "ollama": "0.5.11",
