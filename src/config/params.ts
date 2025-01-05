@@ -7,3 +7,5 @@ export const CC_OLLAMA_EMIT_TOOL_PROTOCOL = !!process.env.CC_OLLAMA_EMIT_TOOL_PR
 export const CC_OPENAI_ENABLE = !!process.env.CC_OPENAI_ENABLE || false;
 export const CC_OPENAI_API_KEY = process.env.CC_OPENAI_API_KEY || "";
 export const CC_OPENAI_MODEL = process.env.CC_OLLAMA_MODEL || "mistral:7b";
+
+export const CC_EMBEDDING_COEF = parseFloat(process.env.CC_EMBEDDING_COEF) || 0.8;
