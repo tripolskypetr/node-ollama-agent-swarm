@@ -10,5 +10,9 @@ process.exit = (statuscode) => {
   console.log('Exit prevented', { statuscode })
 }
 
+process.kill = (statuscode) => {
+  console.log('Kill prevented', { statuscode })
+}
+
 ioc.loggerService.setPrefix("host-repl");
 ioc.loggerService.setDebug(false);

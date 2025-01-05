@@ -5,6 +5,7 @@ import { tidy, mul, norm, sum, tensor1d, div } from "@tensorflow/tfjs-core";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/config/types";
 import { IContext } from "../base/ContextService";
+import { CC_EMBEDDING_SIMILARITY_COEF } from "src/config/params";
 
 const getEmbedder = singleshot(
   async () =>
@@ -34,19 +35,19 @@ export class EmbeddingService {
     a: Embeddings,
     b: Embeddings
   ) => {
-    this.loggerService.log("embeddingService compareEmbeddings", {
-      context,
-      a: [...a.slice(5), "..."],
-      b: [...b.slice(5), "..."],
-    });
+    this.loggerService.log("embeddingService compareEmbeddings", { context });
     return tidy(() => {
       const tensorA = tensor1d(a);
       const tensorB = tensor1d(b);
       const dotProduct = sum(mul(tensorA, tensorB));
       const normA = norm(tensorA);
       const normB = norm(tensorB);
-      const cosineSimilarity = div(dotProduct, mul(normA, normB)).data()[0];
-      return cosineSimilarity;
+      const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
+      const cosineSimilarity = cosineData[0];
+      this.loggerService.log(
+        `embeddingService compareEmbeddings cosineSimilarity=${cosineSimilarity}`
+      );
+      return cosineSimilarity >= CC_EMBEDDING_SIMILARITY_COEF;
     });
   };
 }
