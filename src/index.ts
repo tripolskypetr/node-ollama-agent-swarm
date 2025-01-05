@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { serveStatic } from '@hono/node-server/serve-static'
 
 import "./routes/session";
+import "./routes/complete";
 
 import { app, injectWebSocket } from './config/app';
 import { ioc } from './services';

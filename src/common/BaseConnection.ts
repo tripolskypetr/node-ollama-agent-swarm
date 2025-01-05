@@ -35,6 +35,14 @@ export const BaseConnection = factory(
 
     constructor(readonly params: IConnectionParams) {}
 
+    waitForOutput = async (): Promise<string> => {
+      this.loggerService.debugCtx("BaseConnection waitForOutput", {
+        connectionName: this.params.connectionName,
+      });
+      const { data } = await this.outgoingSubject.toPromise();
+      return data;
+    };
+
     execute = async (message: string[]) => {
       this.loggerService.debugCtx("BaseConnection execute", {
         message,

@@ -21,7 +21,7 @@ export class ErrorService {
     };
 
     private _listenForError = () => {
-        console.log("Global exceptions listened in remote-grpc");
+        console.log("Global exceptions listened");
         process.on('uncaughtException', (err) => {
             console.log(err);
             this.handleGlobalError(err);

@@ -16,6 +16,18 @@ export class ConnectionPublicService implements TConnection {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   readonly connectionPrivateService = inject<ConnectionPrivateService>(TYPES.connectionPrivateService);
 
+  public execute = async (clientId: string, messages: string[]) => {
+    this.loggerService.log("connectionPublicService execute", { clientId, messages });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.connectionPrivateService.execute(messages);
+      },
+      {
+        clientId,
+      }
+    );
+  };
+
   public connect = (
     clientId: string,
     connector: (outgoing: IOutgoingMessage) => void | Promise<void>

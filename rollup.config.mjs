@@ -13,10 +13,12 @@ export default [
     output: [
       {
         file: path.join("build", "index.mjs"),
+        sourcemap: true,
         format: "esm",
       },
       {
         file: path.join("build", "index.cjs"),
+        sourcemap: true,
         format: "commonjs",
       },
     ],

@@ -29,6 +29,18 @@ export class ConnectionPrivateService implements IConnection {
     ).connect(connector);
   };
 
+  public execute = async (
+    messages: string[]
+  ) => {
+    this.loggerService.logCtx("connectionPrivateService execute", {
+      messages,
+    });
+    const connection = await this.getClientConnection(this.contextService.context.clientId);
+    const output = connection.waitForOutput();
+    await connection.execute(messages);
+    return await output;
+  };
+
   public commitToolOutput = async (content: string, agentName: AgentName) => {
     this.loggerService.logCtx("connectionPrivateService commitToolOutput", {
       content,
