@@ -6,10 +6,12 @@ import LoggerService from "../base/LoggerService";
 import ClientConnection, { IConnection } from "src/client/ClientConnection";
 import { AgentName } from "src/utils/getAgentMap";
 import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
+import RootSwarmService from "../logic/RootSwarmService";
 
 export class ConnectionPrivateService implements IConnection {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   readonly contextService = inject<TContextService>(TYPES.contextService);
+  readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
 
   private getClientConnection = memoize(
     ([clientId]) => clientId,
@@ -29,7 +31,17 @@ export class ConnectionPrivateService implements IConnection {
     ).connect(connector);
   };
 
-  public execute = async (messages: string[]) => {
+  public complete = async (messages: string[]) => {
+    this.loggerService.logCtx("connectionPrivateService complete", {
+      messages,
+    });
+    return await this.execute(
+      messages,
+      await this.rootSwarmService.getAgentName()
+    );
+  };
+
+  public execute = async (messages: string[], agentName: AgentName) => {
     this.loggerService.logCtx("connectionPrivateService execute", {
       messages,
     });
@@ -37,7 +49,7 @@ export class ConnectionPrivateService implements IConnection {
       this.contextService.context.clientId
     );
     const output = connection.waitForOutput();
-    await connection.execute(messages);
+    await connection.execute(messages, agentName);
     return await output;
   };
 

@@ -15,11 +15,23 @@ export class ConnectionPublicService implements TConnection {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   readonly connectionPrivateService = inject<ConnectionPrivateService>(TYPES.connectionPrivateService);
 
-  public execute = async (clientId: string, messages: string[]) => {
-    this.loggerService.log("connectionPublicService execute", { clientId, messages });
+  public execute = async (clientId: string, messages: string[], agentName: AgentName) => {
+    this.loggerService.log("connectionPublicService execute", { clientId, messages, agentName });
     return await ContextService.runInContext(
       async () => {
-        return await this.connectionPrivateService.execute(messages);
+        return await this.connectionPrivateService.execute(messages, agentName);
+      },
+      {
+        clientId,
+      }
+    );
+  };
+
+  public complete = async (clientId: string, messages: string[]) => {
+    this.loggerService.log("connectionPublicService complete", { clientId, messages });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.connectionPrivateService.complete(messages);
       },
       {
         clientId,

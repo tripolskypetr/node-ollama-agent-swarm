@@ -8,7 +8,7 @@ app.post("/api/v1/complete", async (ctx) => {
   console.time(`${ctx.req.url} ${request.requestId}`);
   ioc.loggerService.log(ctx.req.url, { request });
   try {
-    const result = await ioc.connectionPublicService.execute(request.clientId, request.messages);
+    const result = await ioc.connectionPublicService.complete(request.clientId, request.messages);
     ioc.loggerService.log(`${ctx.req.url} ok`, { request, result });
     return ctx.json(result, 200);
   } catch (error) {

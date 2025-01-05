@@ -39,11 +39,14 @@ export class BaseConnection {
     return data;
   };
 
-  execute = async (message: string[]) => {
+  execute = async (message: string[], agentName: AgentName) => {
     this.loggerService.debugCtx("BaseConnection execute", {
       message,
       connectionName: this.params.connectionName,
     });
+    if ((await this.rootSwarmService.getAgentName()) !== agentName) {
+      return;
+    }
     const agent = await this.rootSwarmService.getAgent();
     return await agent.execute(message);
   };
@@ -87,7 +90,10 @@ export class BaseConnection {
       this.loggerService.debugCtx("BaseConnection connect call", {
         connectionName: this.params.connectionName,
       });
-      await this.execute(incoming.data);
+      await this.execute(
+        incoming.data,
+        await this.rootSwarmService.getAgentName()
+      );
     };
   };
 
