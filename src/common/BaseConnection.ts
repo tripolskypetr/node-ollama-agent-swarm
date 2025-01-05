@@ -5,18 +5,19 @@ import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import getAgentMap, { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
-import IMessage from "src/model/Message.model";
+import { IOutgoingMessage, IIncomingMessage } from "src/model/Message.model";
 
 interface IConnectionParams {
   connectionName: string;
   clientId: string;
 }
 
-export type SendMessageFn = (outgoing: IMessage) => Promise<void>;
+type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void>;
+type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void>;
 
 export interface IConnection {
   dispose(): Promise<void>;
-  connect(connector: SendMessageFn): SendMessageFn;
+  connect(connector: SendMessageFn): ReceiveMessageFn;
   commitToolOutput(content: string, agentName: AgentName): Promise<void>;
   commitSystemMessage(message: string, agentName: AgentName): Promise<void>;
   emit(outgoing: string, agentName: AgentName): Promise<void>;
@@ -30,7 +31,7 @@ export const BaseConnection = factory(
 
     readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-    readonly outgoingSubject = new Subject<IMessage>();
+    readonly outgoingSubject = new Subject<IOutgoingMessage>();
 
     constructor(readonly params: IConnectionParams) {}
 
@@ -70,7 +71,7 @@ export const BaseConnection = factory(
     };
 
     connect = (
-      connector: (outgoing: IMessage) => void | Promise<void>
+      connector: (outgoing: IOutgoingMessage) => void | Promise<void>
     ) => {
       this.loggerService.debugCtx("BaseConnection connect", {
         connectionName: this.params.connectionName,
@@ -78,11 +79,11 @@ export const BaseConnection = factory(
       this.outgoingSubject.subscribe(async (outgoing) => {
         await connector(outgoing);
       });
-      return async (incoming: IMessage) => {
+      return async (incoming: IIncomingMessage) => {
         this.loggerService.debugCtx("BaseConnection connect call", {
           connectionName: this.params.connectionName,
         });
-        await this.execute([incoming.data]);
+        await this.execute(incoming.data);
       };
     };
 

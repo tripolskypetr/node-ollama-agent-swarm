@@ -6,7 +6,7 @@ import LoggerService from "../base/LoggerService";
 import { IConnection } from "src/common/BaseConnection";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
-import IMessage from "src/model/Message.model";
+import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
 
 type TConnection = {
   [key in keyof IConnection]: any;
@@ -18,7 +18,7 @@ export class ConnectionPublicService implements TConnection {
 
   public connect = (
     clientId: string,
-    connector: (outgoing: IMessage) => void | Promise<void>
+    connector: (outgoing: IOutgoingMessage) => void | Promise<void>
   ) => {
     this.loggerService.log("connectionPublicService connect", { clientId });
     return ContextService.runInContext(
@@ -33,7 +33,7 @@ export class ConnectionPublicService implements TConnection {
             }
           );
         });
-        return async (incoming: IMessage) => {
+        return async (incoming: IIncomingMessage) => {
           return await ContextService.runInContext(async () => {
             return await receive(incoming);
           }, {

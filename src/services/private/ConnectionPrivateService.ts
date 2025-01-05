@@ -5,11 +5,7 @@ import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import BaseConnection, { IConnection } from "src/common/BaseConnection";
 import { AgentName } from "src/utils/getAgentMap";
-import IMessage from "src/model/Message.model";
-
-export type SendMessageFn = (
-  outgoing: IMessage
-) => Promise<void | typeof CANCELED_PROMISE_SYMBOL>;
+import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
 
 export class ConnectionPrivateService implements IConnection {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -25,7 +21,7 @@ export class ConnectionPrivateService implements IConnection {
   );
 
   public connect = (
-    connector: (outgoing: IMessage) => void | Promise<void>
+    connector: (outgoing: IOutgoingMessage) => void | Promise<void>
   ) => {
     this.loggerService.logCtx("connectionPrivateService connect");
     return this.getClientConnection(
