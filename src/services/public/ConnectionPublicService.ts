@@ -1,9 +1,8 @@
-import { CANCELED_PROMISE_SYMBOL, memoize } from "functools-kit";
 import ContextService from "../base/ContextService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
-import { IConnection } from "src/common/BaseConnection";
+import { IConnection } from "src/client/ClientConnection";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
 import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";

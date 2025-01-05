@@ -1,5 +1,5 @@
 import { memoize } from "functools-kit";
-import BaseAgent, { IAgent } from "src/common/BaseAgent";
+import ClientAgent, { IAgent } from "src/client/ClientAgent";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import { TContextService } from "src/services/base/ContextService";
@@ -28,7 +28,7 @@ export class TriageAgentService implements IAgent {
   private getClientAgent = memoize(
     ([clientId]) => clientId,
     (clientId: string) =>
-      new (class extends BaseAgent({
+      new ClientAgent({
         clientId,
         agentName: "triage-agent",
         prompt: AGENT_PROMPT,
@@ -36,7 +36,7 @@ export class TriageAgentService implements IAgent {
           this.navigateToRefundAgentTool.getToolSignature(),
           this.navigateToSalesAgentTool.getToolSignature(),
         ],
-      }) {})()
+      })
   );
 
   public execute = async (input: string[]) => {

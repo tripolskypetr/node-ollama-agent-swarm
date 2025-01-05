@@ -1,4 +1,4 @@
-import { AgentToolSignature, IAgentTool } from "src/common/BaseAgent";
+import { AgentToolSignature, IAgentTool } from "src/client/ClientAgent";
 import { inject } from "src/core/di";
 import RootSwarmService from "../logic/RootSwarmService";
 import TYPES from "src/config/types";

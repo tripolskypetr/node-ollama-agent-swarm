@@ -1,9 +1,9 @@
-import { CANCELED_PROMISE_SYMBOL, memoize } from "functools-kit";
+import { memoize } from "functools-kit";
 import { TContextService } from "../base/ContextService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
-import BaseConnection, { IConnection } from "src/common/BaseConnection";
+import ClientConnection, { IConnection } from "src/client/ClientConnection";
 import { AgentName } from "src/utils/getAgentMap";
 import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
 
@@ -14,10 +14,10 @@ export class ConnectionPrivateService implements IConnection {
   private getClientConnection = memoize(
     ([clientId]) => clientId,
     (clientId: string) =>
-      new (class extends BaseConnection({
+      new ClientConnection({
         clientId,
         connectionName: "root-connection",
-      }) {})()
+      })
   );
 
   public connect = (
@@ -29,13 +29,13 @@ export class ConnectionPrivateService implements IConnection {
     ).connect(connector);
   };
 
-  public execute = async (
-    messages: string[]
-  ) => {
+  public execute = async (messages: string[]) => {
     this.loggerService.logCtx("connectionPrivateService execute", {
       messages,
     });
-    const connection = await this.getClientConnection(this.contextService.context.clientId);
+    const connection = await this.getClientConnection(
+      this.contextService.context.clientId
+    );
     const output = connection.waitForOutput();
     await connection.execute(messages);
     return await output;
@@ -51,7 +51,10 @@ export class ConnectionPrivateService implements IConnection {
     ).commitToolOutput(content, agentName);
   };
 
-  public commitSystemMessage = async (message: string, agentName: AgentName) => {
+  public commitSystemMessage = async (
+    message: string,
+    agentName: AgentName
+  ) => {
     this.loggerService.logCtx("connectionPrivateService commitSystemMessage", {
       message,
       agentName,
