@@ -7,6 +7,7 @@ import {
   CC_OLLAMA_HOST,
   CC_OLLAMA_MODEL,
   CC_OPENAI_API_KEY,
+  CC_OLLAMA_EMIT_TOOL_PROTOCOL,
 } from "src/config/params";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
@@ -18,6 +19,15 @@ import OpenAI from "openai";
 
 const getOllama = singleshot(() => new Ollama({ host: CC_OLLAMA_HOST }));
 const getOpenAI = singleshot(() => new OpenAI({ apiKey: CC_OPENAI_API_KEY }));
+
+/**
+ * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
+ */
+const TOOL_PROTOCOL_PROMPT = `For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
+<tool_call>
+{"name": <function-name>, "arguments": <args-json-object>}
+</tool_call>
+`;
 
 const getOpenAiCompletion = async (messages: any[]) => {
   const { choices } = await getOpenAI().chat.completions.create({
@@ -122,6 +132,12 @@ export const BaseAgent = factory(
         role: "system",
         content: this.params.prompt.trim(),
       });
+      if (CC_OLLAMA_EMIT_TOOL_PROTOCOL) {
+        await this.historyPrivateService.push(this.params.agentName, {
+          role: 'system',
+          content: TOOL_PROTOCOL_PROMPT,
+        })
+      }
     };
 
     commitSystemMessage = async (message: string): Promise<void> => {
