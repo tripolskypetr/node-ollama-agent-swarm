@@ -22,6 +22,13 @@ export class ConnectionPrivateService implements IConnection {
       })
   );
 
+  public waitForOutput = async () => {
+    this.loggerService.logCtx("connectionPrivateService waitForOutput");
+    return await this.getClientConnection(
+      this.contextService.context.clientId
+    ).waitForOutput();
+  };
+
   public connect = (
     connector: (outgoing: IOutgoingMessage) => void | Promise<void>
   ) => {

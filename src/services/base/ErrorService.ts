@@ -4,6 +4,14 @@ import fs from "fs";
 const ERROR_HANDLER_INSTALLED = Symbol.for('error-handler-installed');
 const ERROR_EXECUTE_BEFORE_EXIT = Symbol.for('error-execute-before-exit');
 
+const die = () => {
+    if (process.platform === "win32") {
+        process.exit(-1);
+    } else {
+        process.kill(process.pid, 'SIGTERM');
+    }
+};
+
 export class ErrorService {
 
     get beforeExitSubject(): TSubject<void> {
@@ -17,7 +25,7 @@ export class ErrorService {
     public handleGlobalError = async (error: Error) => {
         fs.appendFileSync('./error.txt', JSON.stringify(errorData(error), null, 2));
         await this.beforeExitSubject.next();
-        process.kill(process.pid, 'SIGTERM');
+        die();
     };
 
     private _listenForError = () => {

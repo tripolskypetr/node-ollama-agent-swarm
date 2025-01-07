@@ -27,6 +27,18 @@ export class ConnectionPublicService implements TConnection {
     );
   };
 
+  public waitForOutput = async (clientId: string) => {
+    this.loggerService.log("connectionPublicService waitForOutput", { clientId });
+    return await ContextService.runInContext(
+      async () => {
+        return await this.connectionPrivateService.waitForOutput();
+      },
+      {
+        clientId,
+      }
+    );
+  };
+
   public complete = async (clientId: string, messages: string[]) => {
     this.loggerService.log("connectionPublicService complete", { clientId, messages });
     return await ContextService.runInContext(

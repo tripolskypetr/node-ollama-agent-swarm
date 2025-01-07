@@ -16,8 +16,11 @@ const server = serve({
   port: 80,
 });
 
+server.addListener("listening", () => {
+  console.log("Server listening on http://localhost:80");
+});
+
 injectWebSocket(server)
 
-console.log("Server listening on http://localhost:80");
 
 ioc.loggerService.setDebug(true);

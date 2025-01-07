@@ -10,6 +10,7 @@ import ConnectionPrivateService from "src/services/private/ConnectionPrivateServ
 import HistoryPrivateService from "src/services/private/HistoryPrivateService";
 import CompletionService from "src/services/api/CompletionService";
 import { TContextService } from "src/services/base/ContextService";
+import validateNoToolCall from "src/validation/validateNoToolCall";
 
 /**
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
@@ -164,7 +165,10 @@ export class ClientAgent implements IAgent {
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`
           );
-          await this._toolCommitSubject.toPromise();
+          await Promise.race([
+            this._toolCommitSubject.toPromise(),
+            this.connectionPrivateService.waitForOutput(),
+          ]);
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end`
           );
@@ -208,10 +212,13 @@ export class ClientAgent implements IAgent {
       response.message
     );
     this.loggerService.debugCtx(
-      `ClientAgent agentName=${this.params.agentName} execute end result=${result} history cleared`
+      `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
     );
-    result &&
-      (await this.connectionPrivateService.emit(result, this.params.agentName));
+    debugger
+    if (result) {
+      await validateNoToolCall(result, this.contextService.context);
+      await this.connectionPrivateService.emit(result, this.params.agentName);
+    }
     return;
   }) as unknown as IAgent["execute"];
 

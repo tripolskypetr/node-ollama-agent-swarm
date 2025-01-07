@@ -1,4 +1,4 @@
-import { PubsubMapAdapter, singleshot } from "functools-kit";
+import { PubsubMapAdapter, singleshot, Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
@@ -13,6 +13,7 @@ interface ISwarmParams {
 }
 
 export interface ISwarm {
+  waitForAgentChange(): Promise<void>;
   getAgentName(): Promise<AgentName>;
   getAgent(): Promise<Agent>;
   setAgent(agentName: AgentName): Promise<void>;
@@ -24,7 +25,16 @@ export class ClientSwarm {
 
   readonly clientSwarmDbService = inject<ClientSwarmDbService>(TYPES.clientSwarmDbService);
 
+  readonly _agentChangedSubject = new Subject<void>();
+
   constructor(readonly params: ISwarmParams) {}
+
+  waitForAgentChange = async () => {
+    this.loggerService.debugCtx(
+      `ClientSwarm swarmName=${this.params.swarmName} waitForAgentChange`
+    );
+    return await this._agentChangedSubject.toPromise();
+  };
 
   _beginChat = async () => {
     this.loggerService.debugCtx(
@@ -34,7 +44,7 @@ export class ClientSwarm {
     await agent.beginChat();
   };
 
-  getAgentName = async () => {
+  getAgentName = async (): Promise<AgentName> => {
     this.loggerService.debugCtx(
       `ClientSwarm swarmName=${this.params.swarmName} getAgentName`
     );
@@ -60,6 +70,7 @@ export class ClientSwarm {
     );
     await this.clientSwarmDbService.set(this.params.clientId, agentName);
     await this._beginChat();
+    await this._agentChangedSubject.next();
   };
 
   dispose = async () => {

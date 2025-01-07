@@ -16,6 +16,7 @@ type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void>;
 
 export interface IConnection {
   dispose(): Promise<void>;
+  waitForOutput(): Promise<string>;
   connect(connector: SendMessageFn): ReceiveMessageFn;
   commitToolOutput(content: string, agentName: AgentName): Promise<void>;
   commitSystemMessage(message: string, agentName: AgentName): Promise<void>;
@@ -35,8 +36,11 @@ export class BaseConnection {
     this.loggerService.debugCtx("BaseConnection waitForOutput", {
       connectionName: this.params.connectionName,
     });
-    const { data } = await this.outgoingSubject.toPromise();
-    return data;
+    const agentChanged = this.rootSwarmService.waitForAgentChange();
+    return await Promise.race([
+      this.outgoingSubject.toPromise().then(({ data }) => data),
+      agentChanged.then(() => ""),
+    ]);
   };
 
   execute = async (message: string[], agentName: AgentName) => {
