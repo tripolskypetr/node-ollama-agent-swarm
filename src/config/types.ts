@@ -20,6 +20,10 @@ const privateServices = {
     historyPrivateService: Symbol('historyPrivateService'),
 };
 
+const dbServices = {
+    clientSwarmDbService: Symbol('clientSwarmDbService'),
+};
+
 const logicServices = {
     refundsAgentService: Symbol('refundsAgentService'),
     salesAgentService: Symbol('salesAgentService'),
@@ -37,6 +41,7 @@ export const TYPES = {
     ...baseServices,
     ...publicServices,
     ...privateServices,
+    ...dbServices,
     ...logicServices,
     ...toolsServices,
 };

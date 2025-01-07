@@ -3,8 +3,7 @@ import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import getAgentMap, { Agent, AgentName } from "../utils/getAgentMap";
-
-const swarmMap = new PubsubMapAdapter<AgentName>();
+import ClientSwarmDbService from "src/services/db/ClientSwarmDbService";
 
 const DEFAULT_AGENT = "triage-agent";
 
@@ -23,6 +22,8 @@ export interface ISwarm {
 export class ClientSwarm {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  readonly clientSwarmDbService = inject<ClientSwarmDbService>(TYPES.clientSwarmDbService);
+
   constructor(readonly params: ISwarmParams) {}
 
   _beginChat = async () => {
@@ -37,7 +38,7 @@ export class ClientSwarm {
     this.loggerService.debugCtx(
       `ClientSwarm swarmName=${this.params.swarmName} getAgentName`
     );
-    let agent = await swarmMap.get(this.params.clientId);
+    let agent = await this.clientSwarmDbService.get(this.params.clientId);
     if (!agent) {
       agent = DEFAULT_AGENT;
     }
@@ -57,7 +58,7 @@ export class ClientSwarm {
     this.loggerService.debugCtx(
       `ClientSwarm swarmName=${this.params.swarmName} setAgent agentName=${agentName}`
     );
-    await swarmMap.set(this.params.clientId, agentName);
+    await this.clientSwarmDbService.set(this.params.clientId, agentName);
     await this._beginChat();
   };
 
@@ -65,7 +66,7 @@ export class ClientSwarm {
     this.loggerService.debugCtx(
       `ClientAgent swarmName=${this.params.swarmName} dispose`
     );
-    await swarmMap.delete(this.params.clientId);
+    await this.clientSwarmDbService.delete(this.params.clientId);
   };
 }
 

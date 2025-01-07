@@ -11,6 +11,11 @@ export const getAgentMap = singleshot(() => ({
     "triage-agent": inject<TriageAgentService>(TYPES.triageAgentService),
 }));
 
+export const getAgent = (agentName: AgentName) => {
+    const agentMap = getAgentMap();
+    return agentMap[agentName];
+};
+
 export type AgentName = keyof ReturnType<typeof getAgentMap>;
 
 export type Agent = ReturnType<typeof getAgentMap>[AgentName];

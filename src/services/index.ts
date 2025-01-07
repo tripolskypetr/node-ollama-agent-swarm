@@ -17,6 +17,7 @@ import EmbeddingService from "./api/EmbeddingService";
 import CompletionService from "./api/CompletionService";
 import MongooseService from "./base/MongooseService";
 import RedisService from "./base/RedisService";
+import ClientSwarmDbService from "./db/ClientSwarmDbService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -40,6 +41,10 @@ const privateServices = {
     historyPrivateService: inject<HistoryPrivateService>(TYPES.historyPrivateService),
 };
 
+const dbServices = {
+    clientSwarmDbService: inject<ClientSwarmDbService>(TYPES.clientSwarmDbService),
+};
+
 const logicServices = {
     refundsAgentService: inject<RefundsAgentService>(TYPES.refundsAgentService),
     salesAgentService: inject<SalesAgentService>(TYPES.salesAgentService),
@@ -59,6 +64,7 @@ export const ioc = {
     ...baseServices,
     ...publicServices,
     ...privateServices,
+    ...dbServices,
     ...logicServices,
     ...toolsServices,
 };

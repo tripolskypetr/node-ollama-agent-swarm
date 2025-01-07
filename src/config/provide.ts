@@ -18,6 +18,7 @@ import CompletionService from "src/services/api/CompletionService";
 import EmbeddingService from "src/services/api/EmbeddingService";
 import MongooseService from 'src/services/base/MongooseService';
 import RedisService from 'src/services/base/RedisService';
+import ClientSwarmDbService from 'src/services/db/ClientSwarmDbService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -39,6 +40,10 @@ import RedisService from 'src/services/base/RedisService';
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
     provide(TYPES.historyPrivateService, () => new HistoryPrivateService());
+}
+
+{
+    provide(TYPES.clientSwarmDbService, () => new ClientSwarmDbService());
 }
 
 {
