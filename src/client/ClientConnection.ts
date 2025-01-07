@@ -4,7 +4,7 @@ import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import getAgentMap, { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
-import { IOutgoingMessage, IIncomingMessage } from "src/model/Message.model";
+import { IOutgoingMessage, IIncomingMessage } from "src/model/WsMessage.model";
 
 interface IConnectionParams {
   connectionName: string;

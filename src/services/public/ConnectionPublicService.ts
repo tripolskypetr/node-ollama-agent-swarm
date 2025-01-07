@@ -5,7 +5,7 @@ import LoggerService from "../base/LoggerService";
 import { IConnection } from "src/client/ClientConnection";
 import ConnectionPrivateService from "../private/ConnectionPrivateService";
 import { AgentName } from "src/utils/getAgentMap";
-import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
+import { IIncomingMessage, IOutgoingMessage } from "src/model/WsMessage.model";
 
 type TConnection = {
   [key in keyof IConnection]: any;

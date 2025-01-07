@@ -5,7 +5,7 @@ import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import ClientConnection, { IConnection } from "src/client/ClientConnection";
 import { AgentName } from "src/utils/getAgentMap";
-import { IIncomingMessage, IOutgoingMessage } from "src/model/Message.model";
+import { IOutgoingMessage } from "src/model/WsMessage.model";
 import RootSwarmService from "../logic/RootSwarmService";
 
 export class ConnectionPrivateService implements IConnection {

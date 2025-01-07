@@ -1,4 +1,4 @@
-import { not, queued, Subject } from "functools-kit";
+import { not, or, queued, Subject } from "functools-kit";
 import { omit } from "lodash-es";
 import { Message, Tool } from "ollama";
 import { CC_OLLAMA_EMIT_TOOL_PROTOCOL } from "src/config/params";
@@ -54,9 +54,30 @@ export interface IAgent {
 }
 
 /**
- * @description `ask for agent function` in `llama3.1:8b` to troubleshoot
+ * @description `ask for agent function` in `llama3.1:8b` to troubleshoot (need CC_OLLAMA_EMIT_TOOL_PROTOCOL to be turned off)
  */
 const TOOL_CALL_EXCEPTION_PROMPT = "Start the conversation";
+
+/**
+ * @description When the model output is empty just say hello to the customer
+ */
+const EMPTY_OUTPUT_PLACEHOLDERS = [
+  "Sorry, I missed that. Could you say it again?",
+  "I couldn't catch that. Would you mind repeating?",
+  "I didn’t quite hear you. Can you repeat that, please?",
+  "Pardon me, I didn’t hear that clearly. Could you repeat it?",
+  "Sorry, I didn’t catch what you said. Could you say it again?",
+  "Could you repeat that? I didn’t hear it clearly.",
+  "I missed that. Can you say it one more time?",
+  "Sorry, I didn’t get that. Could you repeat it, please?",
+  "I didn’t hear you properly. Can you say that again?",
+  "Could you please repeat that? I didn’t catch it.",
+];
+
+const getPlaceholder = () =>
+  EMPTY_OUTPUT_PLACEHOLDERS[
+    Math.floor(Math.random() * EMPTY_OUTPUT_PLACEHOLDERS.length)
+  ];
 
 export class ClientAgent implements IAgent {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -75,6 +96,33 @@ export class ClientAgent implements IAgent {
   readonly _toolCommitSubject = new Subject<void>();
 
   constructor(readonly params: IAgentParams) {}
+
+  _resurrectModel = async () => {
+    this.loggerService.debugCtx(
+      `ClientAgent agentName=${this.params.agentName} _resurrectModel`
+    );
+    {
+      await this.historyPrivateService.clear(this.params.agentName);
+      await this.beginChat();
+      await this.historyPrivateService.push(this.params.agentName, {
+        role: "user",
+        content: TOOL_CALL_EXCEPTION_PROMPT,
+      });
+    }
+    const response = await this.getCompletion();
+    const result = response.message.content;
+    if (!result) {
+      this.loggerService.debugCtx(
+        `ClientAgent agentName=${this.params.agentName} _resurrectModel empty output`
+      );
+      return getPlaceholder();
+    }
+    await this.historyPrivateService.push(
+      this.params.agentName,
+      response.message
+    );
+    return result;
+  };
 
   getCompletion = async (): Promise<{ message: Message }> => {
     this.loggerService.debugCtx(
@@ -177,27 +225,11 @@ export class ClientAgent implements IAgent {
         this.loggerService.debugCtx(
           `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool function not found`
         );
-        await this.historyPrivateService.clear(this.params.agentName);
-        await this.beginChat();
-        await this.historyPrivateService.push(this.params.agentName, {
-          role: "user",
-          content: TOOL_CALL_EXCEPTION_PROMPT,
-        });
-        {
-          const response = await this.getCompletion();
-          const result = response.message.content;
-          await this.historyPrivateService.push(
-            this.params.agentName,
-            response.message
-          );
-          this.loggerService.debugCtx(
-            `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
-          );
-          await this.connectionPrivateService.emit(
-            result,
-            this.params.agentName
-          );
-        }
+        const result = await this._resurrectModel();
+        this.loggerService.debugCtx(
+          `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
+        );
+        await this.connectionPrivateService.emit(result, this.params.agentName);
         return;
       }
     }
@@ -211,15 +243,19 @@ export class ClientAgent implements IAgent {
       this.params.agentName,
       response.message
     );
+    const isInvalid = await or(not(validateNoToolCall(result)), !result);
+    if (isInvalid) {
+      const result = await this._resurrectModel();
+      this.loggerService.debugCtx(
+        `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
+      );
+      await this.connectionPrivateService.emit(result, this.params.agentName);
+      return;
+    }
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
     );
-    debugger
-    if (result) {
-      await validateNoToolCall(result, this.contextService.context);
-      await this.connectionPrivateService.emit(result, this.params.agentName);
-    }
-    return;
+    await this.connectionPrivateService.emit(result, this.params.agentName);
   }) as unknown as IAgent["execute"];
 
   dispose = async () => {
