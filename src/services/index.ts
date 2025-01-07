@@ -15,6 +15,8 @@ import ConnectionPrivateService from "./private/ConnectionPrivateService";
 import HistoryPrivateService from "./private/HistoryPrivateService";
 import EmbeddingService from "./api/EmbeddingService";
 import CompletionService from "./api/CompletionService";
+import MongooseService from "./base/MongooseService";
+import RedisService from "./base/RedisService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -25,6 +27,8 @@ const baseServices = {
     loggerService: inject<LoggerService>(TYPES.loggerService),
     errorService: inject<ErrorService>(TYPES.errorService),
     contextService: inject<TContextService>(TYPES.contextService),
+    mongooseService: inject<MongooseService>(TYPES.mongooseService),
+    redisService: inject<RedisService>(TYPES.redisService),
 };
 
 const publicServices = {

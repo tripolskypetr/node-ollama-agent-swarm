@@ -16,6 +16,8 @@ import ConnectionPrivateService from 'src/services/private/ConnectionPrivateServ
 import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
 import CompletionService from "src/services/api/CompletionService";
 import EmbeddingService from "src/services/api/EmbeddingService";
+import MongooseService from 'src/services/base/MongooseService';
+import RedisService from 'src/services/base/RedisService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -26,6 +28,8 @@ import EmbeddingService from "src/services/api/EmbeddingService";
     provide(TYPES.loggerService, () => new LoggerService());
     provide(TYPES.errorService, () => new ErrorService());
     provide(TYPES.contextService, () => new ContextService());
+    provide(TYPES.mongooseService, () => new MongooseService());
+    provide(TYPES.redisService, () => new RedisService());
 }
 
 {

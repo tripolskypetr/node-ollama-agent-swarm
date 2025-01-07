@@ -7,6 +7,8 @@ const baseServices = {
     loggerService: Symbol('loggerService'),
     errorService: Symbol('errorService'),
     contextService: Symbol('contextService'),
+    mongooseService: Symbol('mongooseService'),
+    redisService: Symbol('redisService'),
 };
 
 const publicServices = {
