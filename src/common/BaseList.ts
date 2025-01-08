@@ -61,10 +61,27 @@ export const BaseList = factory(class {
     await this._enforceMaxItems();
   }
 
+  async pop(): Promise<any | null> {
+    this.loggerService.debug(`BaseList pop connection=${this.connectionKey}`);
+    const redis = await this.redisService.getRedis();
+    const value = await redis.rpop(this.connectionKey);
+    if (this.config.TTL_EXPIRE_SECONDS === -1) {
+      await redis.persist(this.connectionKey);
+      return value ? JSON.parse(value) : null;
+    } 
+    await redis.expire(this.connectionKey, this.config.TTL_EXPIRE_SECONDS);
+    return value ? JSON.parse(value) : null;
+  }
+
   async shift(): Promise<any | null> {
     this.loggerService.debug(`BaseList shift connection=${this.connectionKey}`);
     const redis = await this.redisService.getRedis();
     const value = await redis.lpop(this.connectionKey);
+    if (this.config.TTL_EXPIRE_SECONDS === -1) {
+      await redis.persist(this.connectionKey);
+      return value ? JSON.parse(value) : null;
+    } 
+    await redis.expire(this.connectionKey, this.config.TTL_EXPIRE_SECONDS);
     return value ? JSON.parse(value) : null;
   }
 

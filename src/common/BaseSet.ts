@@ -92,6 +92,11 @@ export const BaseSet = factory(
       );
       const redis = await this.redisService.getRedis();
       await redis.srem(this.connectionKey, value);
+      if (this.config.TTL_EXPIRE_SECONDS === -1) {
+        await redis.persist(this.connectionKey);
+      } else {
+        await redis.expire(this.connectionKey, this.config.TTL_EXPIRE_SECONDS);
+      }
     }
 
     async has(value: string): Promise<boolean> {

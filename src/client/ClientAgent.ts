@@ -11,6 +11,7 @@ import HistoryPrivateService from "src/services/private/HistoryPrivateService";
 import CompletionService from "src/services/api/CompletionService";
 import { TContextService } from "src/services/base/ContextService";
 import validateNoToolCall from "src/validation/validateNoToolCall";
+import { IModelMessage } from "src/model/ModelMessage.model";
 
 /**
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
@@ -106,6 +107,7 @@ export class ClientAgent implements IAgent {
       await this.beginChat();
       await this.historyPrivateService.push(this.params.agentName, {
         role: "user",
+        agentName: this.params.agentName,
         content: TOOL_CALL_EXCEPTION_PROMPT,
       });
     }
@@ -117,10 +119,11 @@ export class ClientAgent implements IAgent {
       );
       return getPlaceholder();
     }
-    await this.historyPrivateService.push(
-      this.params.agentName,
-      response.message
-    );
+    await this.historyPrivateService.push(this.params.agentName, {
+      ...response.message,
+      role: response.message.role as IModelMessage["role"],
+      agentName: this.params.agentName,
+    });
     return result;
   };
 
@@ -130,7 +133,7 @@ export class ClientAgent implements IAgent {
     );
     return await this.completionService.getCompletion(
       this.contextService.context,
-      await this.historyPrivateService.toArray(this.params.agentName),
+      await this.historyPrivateService.toArrayForAgent(this.params.agentName),
       this.params.tools?.map((t) => omit(t, "implementation"))
     );
   };
@@ -141,11 +144,13 @@ export class ClientAgent implements IAgent {
     );
     await this.historyPrivateService.push(this.params.agentName, {
       role: "system",
+      agentName: this.params.agentName,
       content: this.params.prompt.trim(),
     });
     if (CC_OLLAMA_EMIT_TOOL_PROTOCOL) {
       await this.historyPrivateService.push(this.params.agentName, {
         role: "system",
+        agentName: this.params.agentName,
         content: TOOL_PROTOCOL_PROMPT,
       });
     }
@@ -157,6 +162,7 @@ export class ClientAgent implements IAgent {
     );
     await this.historyPrivateService.push(this.params.agentName, {
       role: "system",
+      agentName: this.params.agentName,
       content: message.trim(),
     });
   };
@@ -167,6 +173,7 @@ export class ClientAgent implements IAgent {
     );
     await this.historyPrivateService.push(this.params.agentName, {
       role: "tool",
+      agentName: this.params.agentName,
       content,
     });
     await this._toolCommitSubject.next();
@@ -183,6 +190,8 @@ export class ClientAgent implements IAgent {
     for (const message of messages) {
       await this.historyPrivateService.push(this.params.agentName, {
         role: "user",
+
+        agentName: this.params.agentName,
         content: message.trim(),
       });
     }
@@ -197,7 +206,11 @@ export class ClientAgent implements IAgent {
         );
         await this.historyPrivateService.push(
           this.params.agentName,
-          response.message
+          {
+            ...response.message,
+            role: response.message.role as IModelMessage["role"],
+            agentName: this.params.agentName,
+          }
         );
         if (
           targetFn &&
@@ -241,14 +254,19 @@ export class ClientAgent implements IAgent {
     const result = response.message.content;
     await this.historyPrivateService.push(
       this.params.agentName,
-      response.message
+      {
+        ...response.message,
+        role: response.message.role as IModelMessage["role"],
+        agentName: this.params.agentName,
+      }
     );
     const isInvalid = await or(not(validateNoToolCall(result)), !result);
+    isInvalid && this.loggerService.debugCtx(
+      `ClientAgent agentName=${this.params.agentName} execute invalid tool call detected`,
+      { result }
+    );
     if (isInvalid) {
       const result = await this._resurrectModel();
-      this.loggerService.debugCtx(
-        `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
-      );
       await this.connectionPrivateService.emit(result, this.params.agentName);
       return;
     }

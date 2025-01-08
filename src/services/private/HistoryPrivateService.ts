@@ -4,8 +4,8 @@ import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import ClientHistory, { IHistory } from "src/client/ClientHistory";
-import { AgentName } from "src/utils/getAgentMap";
-import { Message } from "ollama";
+import { AgentName, getAgent } from "src/utils/getAgentMap";
+import { IModelMessage } from "src/model/ModelMessage.model";
 
 type THistory = {
   [key in keyof IHistory]: any;
@@ -32,15 +32,23 @@ export class HistoryPrivateService implements THistory {
     ).length();
   };
 
-  public toArray = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService toArray");
+  public toArrayForAgent = async (agentName: AgentName) => {
+    this.loggerService.logCtx("historyPrivateService toArrayForAgent");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
-    ).toArray();
+    ).toArrayForAgent();
   };
 
-  public push = async (agentName: AgentName, message: Message) => {
+  public toArrayForRaw = async (agentName: AgentName) => {
+    this.loggerService.logCtx("historyPrivateService toArrayForRaw");
+    return await this.getClientHistory(
+      this.contextService.context.clientId,
+      agentName
+    ).toArrayForRaw();
+  };
+
+  public push = async (agentName: AgentName, message: IModelMessage) => {
     this.loggerService.logCtx("historyPrivateService push", { message });
     return await this.getClientHistory(
       this.contextService.context.clientId,

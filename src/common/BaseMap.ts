@@ -108,6 +108,13 @@ export const BaseMap = factory(
       const redis = await this.redisService.getRedis();
       await redis.hdel(`${this.connectionKey}:map`, key);
       await redis.lrem(`${this.connectionKey}:order`, 0, key);
+      if (this.config.TTL_EXPIRE_SECONDS === -1) {
+        await redis.persist(`${this.connectionKey}:map`);
+        await redis.persist(`${this.connectionKey}:order`);
+      } else {
+        await redis.expire(`${this.connectionKey}:map`, this.config.TTL_EXPIRE_SECONDS);
+        await redis.expire(`${this.connectionKey}:order`, this.config.TTL_EXPIRE_SECONDS);
+      }
     }
 
     async has(key: string): Promise<boolean> {
@@ -250,6 +257,13 @@ export const BaseMap = factory(
       if (firstKey) {
         const value = this.get(firstKey);
         await this.delete(firstKey);
+        if (this.config.TTL_EXPIRE_SECONDS === -1) {
+          await redis.persist(`${this.connectionKey}:map`);
+          await redis.persist(`${this.connectionKey}:order`);
+        } else {
+          await redis.expire(`${this.connectionKey}:map`, this.config.TTL_EXPIRE_SECONDS);
+          await redis.expire(`${this.connectionKey}:order`, this.config.TTL_EXPIRE_SECONDS);
+        }
         return value;
       }
       return null;

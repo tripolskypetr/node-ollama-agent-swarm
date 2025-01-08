@@ -17,3 +17,5 @@ export const CC_REDIS_PASSWORD = process.env.CC_REDIS_PASSWORD || "";
 export const CC_EMBEDDING_SIMILARITY_COEF = parseFloat(process.env.CC_EMBEDDING_SIMILARITY_COEF) || 0.8;
 
 export const CC_CLIENT_SESSION_EXPIRE_SECONDS = 7 * 24 * 60 * 60; // 1 week
+
+export const CC_REDIS_FLUSHALL = !!process.env.CC_REDIS_FLUSHALL || false;

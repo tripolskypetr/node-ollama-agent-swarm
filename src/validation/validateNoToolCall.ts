@@ -3,11 +3,12 @@ import xml2js from "xml2js";
 
 const toolParser = new xml2js.Parser();
 
-const TOOL_CALL_ENTRIES = ["tool_call", "toolcall"];
+const TOOL_CALL_ENTRIES = ["tool_call", "toolcall", "tool"];
 
-const tryParse = trycatch((text: string) => JSON.parse(text), {
-  defaultValue: null,
-});
+const DISALLOWED_SYMBOLS = [
+  "{",
+  "}",
+];
 
 /**
  * @description Validation for not parsed XML toolcall
@@ -15,14 +16,14 @@ const tryParse = trycatch((text: string) => JSON.parse(text), {
  */
 export const validateNoToolCall = trycatch(
   async (output: string) => {
-    const parsedResult = tryParse(output);
-    if (parsedResult?.type === "function") {
+    for (const symbol of DISALLOWED_SYMBOLS) {
+      if (output.includes(symbol)) {
         return false;
+      }
     }
     const result = await toolParser.parseStringPromise(output);
     for (const tag of TOOL_CALL_ENTRIES) {
-      const parseResult = tryParse(result[tag]);
-      if (parseResult) {
+      if (result[tag]) {
         return false;
       }
     }

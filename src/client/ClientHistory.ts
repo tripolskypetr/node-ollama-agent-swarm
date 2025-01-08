@@ -1,11 +1,11 @@
-import { PubsubArrayAdapter, Subject } from "functools-kit";
+import { PubsubArrayAdapter, singleshot, Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
-import { AgentName } from "../utils/getAgentMap";
+import { AgentName, getAgent } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
-import { Message } from "ollama";
-import { CC_OLLAMA_MESSAGES } from "src/config/params";
+import BaseList from "src/common/BaseList";
+import { IModelMessage } from "src/model/ModelMessage.model";
 
 interface IHistoryParams {
   agentName: AgentName;
@@ -14,17 +14,23 @@ interface IHistoryParams {
 
 export interface IHistory {
   length(): Promise<number>;
-  push(message: Message): Promise<void>;
-  toArray(): Promise<Message[]>;
+  push(message: IModelMessage): Promise<void>;
+  toArrayForRaw(): Promise<IModelMessage[]>;
+  toArrayForAgent(): Promise<IModelMessage[]>;
   dispose(): Promise<void>;
 }
 
-export class ClientHistory {
+export class ClientHistory implements IHistory {
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
 
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  messages = new PubsubArrayAdapter<Message>(CC_OLLAMA_MESSAGES);
+  getMessageList = singleshot(() => {
+    const Ctor = BaseList(
+      `node-ollama-agent-swarm__clientHistoryChat__${this.params.clientId}`
+    );
+    return new Ctor();
+  });
 
   constructor(readonly params: IHistoryParams) {}
 
@@ -32,22 +38,25 @@ export class ClientHistory {
     this.loggerService.debugCtx(
       `ClientHistory agentName=${this.params.agentName} length`
     );
-    return await this.messages.length();
+    const messages = await this.getMessageList();
+    return await messages.length();
   };
 
-  push = async (message: Message) => {
+  push = async (message: IModelMessage) => {
     this.loggerService.debugCtx(
       `ClientHistory agentName=${this.params.agentName} push`,
       { message }
     );
-    return await this.messages.push(message);
+    const messages = await this.getMessageList();
+    return await messages.push(message);
   };
 
   pop = async () => {
     this.loggerService.debugCtx(
       `ClientHistory agentName=${this.params.agentName} pop`
     );
-    return await this.messages.pop();
+    const messages = await this.getMessageList();
+    return await messages.pop();
   };
 
   clear = async () => {
@@ -59,17 +68,37 @@ export class ClientHistory {
     }
   };
 
-  toArray = async () => {
-    const result: Message[] = [];
-    for await (const message of this.messages) {
+  toArrayForRaw = async () => {
+    this.loggerService.debugCtx(
+      `ClientHistory agentName=${this.params.agentName} toArrayForRaw`
+    );
+    const result: IModelMessage[] = [];
+    const messages = await this.getMessageList();
+    for await (const message of messages) {
       result.push(message);
     }
+    return result;
+  };
+
+  toArrayForAgent = async () => {
     this.loggerService.debugCtx(
-      `ClientHistory agentName=${this.params.agentName} toArray`,
-      {
-        history: result,
-      }
+      `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
     );
+    const result: IModelMessage[] = [];
+    const messages = await this.getMessageList();
+    for await (const content of messages) {
+      const message: IModelMessage = content;
+      let isOk = true;
+      if (message.role === "system") {
+        isOk = isOk && message.agentName === this.params.agentName;
+      }
+      if (message.tool_calls) {
+        isOk = isOk && message.agentName === this.params.agentName;
+      }
+      if (isOk) {
+        result.push(message);
+      }
+    }
     return result;
   };
 
@@ -80,7 +109,6 @@ export class ClientHistory {
         agentName: this.params.agentName,
       }
     );
-    await this.messages.clear();
   };
 }
 

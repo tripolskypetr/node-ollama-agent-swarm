@@ -25,7 +25,7 @@ export class RefundsAgentService implements IAgent {
       })
   );
 
-  commitSystemMessage = async (message: string) => {
+  public commitSystemMessage = async (message: string) => {
     this.loggerService.logCtx("refundsAgentService commitSystemMessage", {
       message,
     });
@@ -33,7 +33,7 @@ export class RefundsAgentService implements IAgent {
     return await agent.commitSystemMessage(message);
   };
 
-  commitToolOutput = async (content: string) => {
+  public commitToolOutput = async (content: string) => {
     this.loggerService.logCtx("refundsAgentService commitToolOutput", {
       content,
     });

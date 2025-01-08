@@ -7,7 +7,11 @@
     "start": "dotenv -e .env -- npm run build && node ./build/index.mjs",
     "start:debug": "dotenv -e .env -- npm run build && node --inspect-brk ./build/index.mjs",
     "build": "dotenv -e .env -- rollup -c",
-    "postinstall": "node ./scripts/postinstall.mjs"
+    "postinstall": "node ./scripts/postinstall.mjs",
+    "ollama:dump:win": ".\\scripts\\windows\\dump_ollama.bat",
+    "ollama:create:win": ".\\scripts\\windows\\create_ollama.bat",
+    "ollama:dump": "sh ./scripts/windows/dump_ollama.bat",
+    "ollama:create": "sh ./scripts/windows/create_ollama.bat"
   },
   "devDependencies": {
     "@types/lodash-es": "4.17.12",

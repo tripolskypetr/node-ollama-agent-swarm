@@ -3,6 +3,7 @@ import LoggerService from "./LoggerService";
 import TYPES from "src/config/types";
 import Redis from "ioredis";
 import {
+  CC_REDIS_FLUSHALL,
   CC_REDIS_HOST,
   CC_REDIS_PASSWORD,
   CC_REDIS_PORT,
@@ -59,6 +60,13 @@ export class RedisService {
       }
     }, 30000);
   });
+
+  protected init = singleshot(async () => {
+    const redis = await this.getRedis();
+    if (CC_REDIS_FLUSHALL) {
+      await redis.flushall();
+    }
+  })
 }
 
 export default RedisService;
