@@ -113,6 +113,7 @@ export class ClientHistory implements IHistory {
         agentName: this.params.agentName,
       }
     );
+    return Promise.resolve();
   };
 }
 

@@ -11,7 +11,8 @@
     "ollama:dump:win": ".\\scripts\\windows\\dump_ollama.bat",
     "ollama:create:win": ".\\scripts\\windows\\create_ollama.bat",
     "ollama:dump": "sh ./scripts/windows/dump_ollama.bat",
-    "ollama:create": "sh ./scripts/windows/create_ollama.bat"
+    "ollama:create": "sh ./scripts/windows/create_ollama.bat",
+    "kill": "kill-port 80"
   },
   "devDependencies": {
     "@types/lodash-es": "4.17.12",
@@ -24,6 +25,7 @@
     "rollup-plugin-peer-deps-external": "2.2.4",
     "@rollup/plugin-typescript": "11.1.6",
     "tslib": "2.7.0",
+    "kill-port": "2.0.1",
     "dotenv-cli": "7.4.2"
   },
   "dependencies": {

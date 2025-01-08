@@ -131,9 +131,10 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} getCompletion`
     );
+    const messages = await this.historyPrivateService.toArrayForAgent(this.params.agentName);
     return await this.completionService.getCompletion(
       this.contextService.context,
-      await this.historyPrivateService.toArrayForAgent(this.params.agentName),
+      messages.map((message) => omit(message, "agentName")),
       this.params.tools?.map((t) => omit(t, "implementation"))
     );
   };
