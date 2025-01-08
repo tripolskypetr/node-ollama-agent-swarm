@@ -5,7 +5,7 @@ import LoggerService from "src/services/base/LoggerService";
 import RedisService from "src/services/base/RedisService";
 
 const DEFAULT_ITERATOR_BATCH_SIZE = 100;
-const DEFAULT_TTL_EXPIRE_SECONDS = 5 * 60;
+const DEFAULT_TTL_EXPIRE_SECONDS = -1;
 const DEFAULT_MAX_ITEMS = Number.POSITIVE_INFINITY;
 
 interface IConfig {
