@@ -1,8 +1,8 @@
-import { PubsubArrayAdapter, singleshot, Subject } from "functools-kit";
+import { singleshot } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
-import { AgentName, getAgent } from "../utils/getAgentMap";
+import { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
 import BaseList from "src/common/BaseList";
 import { IModelMessage } from "src/model/ModelMessage.model";
