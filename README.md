@@ -25,7 +25,10 @@ The model system prompt can be dynamically changed based on the user behaviour. 
 ## Getting started
 
 ```bash
-ollama run mistral:7b
+cp .env.example .env
+ollama pull nemotron-mini:4b
+# cd docker/mongodb && docker-compose up
+# cd docker/redis && docker-compose up
 npm install
 npm start
 ```
