@@ -6,6 +6,7 @@ import { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
 import BaseList from "src/common/BaseList";
 import { IModelMessage } from "src/model/ModelMessage.model";
+import { CC_CLIENT_SESSION_EXPIRE_SECONDS } from "src/config/params";
 
 interface IHistoryParams {
   agentName: AgentName;
@@ -27,7 +28,10 @@ export class ClientHistory implements IHistory {
 
   getMessageList = singleshot(() => {
     const Ctor = BaseList(
-      `node-ollama-agent-swarm__clientHistoryChat__${this.params.clientId}`
+      `node-ollama-agent-swarm__clientHistoryChat__${this.params.clientId}`,
+      {
+        TTL_EXPIRE_SECONDS: CC_CLIENT_SESSION_EXPIRE_SECONDS,
+      }
     );
     return new Ctor();
   });
