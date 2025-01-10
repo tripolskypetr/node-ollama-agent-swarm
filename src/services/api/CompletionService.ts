@@ -10,7 +10,6 @@ import {
 import { inject } from "src/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/config/types";
-import { AgentName } from "src/utils/getAgentMap";
 import { IContext } from "../base/ContextService";
 
 const getOllama = singleshot(() => new Ollama({ host: CC_OLLAMA_HOST }));

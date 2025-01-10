@@ -18,6 +18,27 @@ export const BaseCRUD = factory(
       return readTransform(entity.toJSON());
     }
 
+    public async update(id: string, dto: object) {
+      this.loggerService.debug(`BaseCRUD update TargetModel=${this.TargetModel.modelName}`, { dto });
+      const updatedDocument = await this.TargetModel.findByIdAndUpdate(id, dto, {
+        new: true,
+        runValidators: true,
+      });
+      if (!updatedDocument) {
+        throw new Error(`${this.TargetModel.modelName} not found`);
+      }
+      return readTransform(updatedDocument.toJSON());
+    }
+
+    public async remove(id: string) {
+      this.loggerService.debug(`BaseCRUD remove TargetModel=${this.TargetModel.modelName}`, { id });
+      const deletedDocument = await this.TargetModel.findByIdAndDelete(id);
+      if (!deletedDocument) {
+        throw new Error(`${this.TargetModel.modelName} not found`);
+      }
+      return readTransform(deletedDocument.toJSON());
+    }
+
     public async findById(id: string) {
       this.loggerService.debug(`BaseCRUD findById TargetModel=${this.TargetModel.modelName}`, { id });
       const entity = await this.TargetModel.findById(id);
