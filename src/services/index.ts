@@ -18,6 +18,9 @@ import CompletionService from "./api/CompletionService";
 import MongooseService from "./base/MongooseService";
 import RedisService from "./base/RedisService";
 import ClientSwarmDbService from "./db/ClientSwarmDbService";
+import ProductDbService from "./db/ProductDbService";
+import MigrationPublicService from "./public/MigrationPublicService";
+import MigrationPrivateService from "./private/MigrationPrivateService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -34,15 +37,18 @@ const baseServices = {
 
 const publicServices = {
     connectionPublicService: inject<ConnectionPublicService>(TYPES.connectionPublicService),
+    migrationPublicService: inject<MigrationPublicService>(TYPES.migrationPublicService),
 };
 
 const privateServices = {
     connectionPrivateService: inject<ConnectionPrivateService>(TYPES.connectionPrivateService),
     historyPrivateService: inject<HistoryPrivateService>(TYPES.historyPrivateService),
+    migrationPrivateService: inject<MigrationPrivateService>(TYPES.migrationPrivateService),
 };
 
 const dbServices = {
     clientSwarmDbService: inject<ClientSwarmDbService>(TYPES.clientSwarmDbService),
+    productDbService: inject<ProductDbService>(TYPES.productDbService),
 };
 
 const logicServices = {

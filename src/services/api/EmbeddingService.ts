@@ -17,25 +17,17 @@ type Embeddings = number[];
 export class EmbeddingService {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  public createEmbedding = async (
-    context: IContext,
-    text: string
-  ): Promise<Embeddings> => {
-    this.loggerService.log("embeddingService createEmbedding", {
+  public createEmbedding = async (text: string): Promise<Embeddings> => {
+    this.loggerService.logCtx("embeddingService createEmbedding", {
       text,
-      context,
     });
     const embedder = await getEmbedder();
     const { embeddings } = await createEmbedding(embedder, text);
     return Array.from(embeddings);
   };
 
-  public compareEmbeddings = async (
-    context: IContext,
-    a: Embeddings,
-    b: Embeddings
-  ) => {
-    this.loggerService.log("embeddingService compareEmbeddings", { context });
+  public compareEmbeddings = async (a: Embeddings, b: Embeddings) => {
+    this.loggerService.logCtx("embeddingService compareEmbeddings");
     return tidy(() => {
       const tensorA = tensor1d(a);
       const tensorB = tensor1d(b);
@@ -44,10 +36,10 @@ export class EmbeddingService {
       const normB = norm(tensorB);
       const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
       const cosineSimilarity = cosineData[0];
-      this.loggerService.debug(
-        `embeddingService compareEmbeddings cosineSimilarity=${cosineSimilarity}`,
-        { context }
+      this.loggerService.debugCtx(
+        `embeddingService compareEmbeddings cosineSimilarity=${cosineSimilarity}`
       );
+      console.log(cosineSimilarity)
       return cosineSimilarity >= CC_EMBEDDING_SIMILARITY_COEF;
     });
   };

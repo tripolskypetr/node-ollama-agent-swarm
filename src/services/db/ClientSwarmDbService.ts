@@ -10,17 +10,17 @@ export class ClientSwarmDbService extends BaseMap(
 ) {
   setWithKeepExpire = obsolete(
     async (key: string, value: any): Promise<void> => {
-      this.loggerService.debug(
+      this.loggerService.logCtx(
         `clientSwarmDbService setWithKeepExpire key=${key} connection=${this.connectionKey}`,
         { key, value }
       );
       return await super.setWithKeepExpire(key, value);
     },
-    "setWithKeepExpire"
+    "clientSwarmDbService setWithKeepExpire"
   );
 
   set = async (key: string, value: any): Promise<void> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService set key=${key} connection=${this.connectionKey}`,
       { key, value }
     );
@@ -28,53 +28,53 @@ export class ClientSwarmDbService extends BaseMap(
   };
 
   get = async (key: string): Promise<any | null> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService get key=${key} connection=${this.connectionKey}`
     );
     return await super.get(key);
   };
 
   delete = async (key: string): Promise<void> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService delete key=${key} connection=${this.connectionKey}`
     );
     return Promise.resolve();
   };
 
   has = obsolete(async (key: string): Promise<boolean> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService has key=${key} connection=${this.connectionKey}`
     );
     return await super.has(key);
-  }, "has");
+  }, "clientSwarmDbService has");
 
   clear = async (): Promise<void> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService clear connection=${this.connectionKey}`
     );
     return Promise.resolve();
   };
 
   getFirst = obsolete(async (): Promise<any | null> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService getFirst connection=${this.connectionKey}`
     );
     return await super.getFirst();
-  }, "getFirst");
+  }, "clientSwarmDbService getFirst");
 
   shift = obsolete(async (): Promise<any | null> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService shift connection=${this.connectionKey}`
     );
     return await super.shift();
-  }, "shift");
+  }, "clientSwarmDbService shift");
 
   size = obsolete(async (): Promise<number> => {
-    this.loggerService.debug(
+    this.loggerService.logCtx(
       `clientSwarmDbService size connection=${this.connectionKey}`
     );
     return await super.size();
-  }, "size");
+  }, "clientSwarmDbService size");
 }
 
 export default ClientSwarmDbService;

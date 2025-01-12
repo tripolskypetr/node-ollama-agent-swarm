@@ -43,14 +43,12 @@ export class CompletionService {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   public getCompletion = async (
-    context: IContext,
     messages: Message[],
     tools?: Tool[],
   ): Promise<{ message: Message }> => {
-    this.loggerService.log(
+    this.loggerService.logCtx(
       `completionService getCompletion`,
       {
-        context,
         useOpenAi: CC_OPENAI_ENABLE,
         messages,
         tools,

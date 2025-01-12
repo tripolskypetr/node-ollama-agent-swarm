@@ -131,9 +131,10 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} getCompletion`
     );
-    const messages = await this.historyPrivateService.toArrayForAgent(this.params.agentName);
+    const messages = await this.historyPrivateService.toArrayForAgent(
+      this.params.agentName
+    );
     return await this.completionService.getCompletion(
-      this.contextService.context,
       messages.map((message) => omit(message, "agentName")),
       this.params.tools?.map((t) => omit(t, "implementation"))
     );
@@ -205,14 +206,11 @@ export class ClientAgent implements IAgent {
         const targetFn = this.params.tools?.find(
           (t) => t.function.name === tool.function.name
         );
-        await this.historyPrivateService.push(
-          this.params.agentName,
-          {
-            ...response.message,
-            role: response.message.role as IModelMessage["role"],
-            agentName: this.params.agentName,
-          }
-        );
+        await this.historyPrivateService.push(this.params.agentName, {
+          ...response.message,
+          role: response.message.role as IModelMessage["role"],
+          agentName: this.params.agentName,
+        });
         if (
           targetFn &&
           (await targetFn.validate(
@@ -253,19 +251,17 @@ export class ClientAgent implements IAgent {
       );
     }
     const result = response.message.content;
-    await this.historyPrivateService.push(
-      this.params.agentName,
-      {
-        ...response.message,
-        role: response.message.role as IModelMessage["role"],
-        agentName: this.params.agentName,
-      }
-    );
+    await this.historyPrivateService.push(this.params.agentName, {
+      ...response.message,
+      role: response.message.role as IModelMessage["role"],
+      agentName: this.params.agentName,
+    });
     const isInvalid = await or(not(validateNoToolCall(result)), !result);
-    isInvalid && this.loggerService.debugCtx(
-      `ClientAgent agentName=${this.params.agentName} execute invalid tool call detected`,
-      { result }
-    );
+    isInvalid &&
+      this.loggerService.debugCtx(
+        `ClientAgent agentName=${this.params.agentName} execute invalid tool call detected`,
+        { result }
+      );
     if (isInvalid) {
       const result = await this._resurrectModel();
       await this.connectionPrivateService.emit(result, this.params.agentName);

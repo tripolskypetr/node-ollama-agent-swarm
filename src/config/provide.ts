@@ -19,6 +19,9 @@ import EmbeddingService from "src/services/api/EmbeddingService";
 import MongooseService from 'src/services/base/MongooseService';
 import RedisService from 'src/services/base/RedisService';
 import ClientSwarmDbService from 'src/services/db/ClientSwarmDbService';
+import ProductDbService from 'src/services/db/ProductDbService';
+import MigrationPublicService from 'src/services/public/MigrationPublicService';
+import MigrationPrivateService from 'src/services/private/MigrationPrivateService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -35,15 +38,18 @@ import ClientSwarmDbService from 'src/services/db/ClientSwarmDbService';
 
 {
     provide(TYPES.connectionPublicService, () => new ConnectionPublicService());
+    provide(TYPES.migrationPublicService, () => new MigrationPublicService());
 }
 
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
     provide(TYPES.historyPrivateService, () => new HistoryPrivateService());
+    provide(TYPES.migrationPrivateService, () => new MigrationPrivateService());
 }
 
 {
     provide(TYPES.clientSwarmDbService, () => new ClientSwarmDbService());
+    provide(TYPES.productDbService, () => new ProductDbService());
 }
 
 {

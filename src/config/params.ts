@@ -18,4 +18,6 @@ export const CC_EMBEDDING_SIMILARITY_COEF = parseFloat(process.env.CC_EMBEDDING_
 
 export const CC_CLIENT_SESSION_EXPIRE_SECONDS = 7 * 24 * 60 * 60; // 1 week
 
+export const CC_VECTOR_SEARCH_LIMIT = parseInt(process.env.CC_VECTOR_SEARCH_LIMIT) || 5;
+
 export const CC_REDIS_FLUSHALL = !!process.env.CC_REDIS_FLUSHALL || false;

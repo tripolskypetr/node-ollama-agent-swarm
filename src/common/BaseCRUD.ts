@@ -59,7 +59,7 @@ export const BaseCRUD = factory(
       return null;
     }
 
-    public async *iterate(filterData: object, sort?: object) {
+    public async *iterate(filterData: object = {}, sort?: object) {
       this.loggerService.debug(`BaseCRUD iterate TargetModel=${this.TargetModel.modelName}`, { filterData, sort });
       for await (const document of this.TargetModel.find(filterData, null, {
         sort,

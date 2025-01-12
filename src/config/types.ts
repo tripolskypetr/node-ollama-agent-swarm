@@ -13,15 +13,18 @@ const baseServices = {
 
 const publicServices = {
     connectionPublicService: Symbol('connectionPublicService'),
+    migrationPublicService: Symbol('migrationPublicService'),
 };
 
 const privateServices = {
     connectionPrivateService: Symbol('connectionPrivateService'),
     historyPrivateService: Symbol('historyPrivateService'),
+    migrationPrivateService: Symbol('migrationPrivateService'),
 };
 
 const dbServices = {
     clientSwarmDbService: Symbol('clientSwarmDbService'),
+    productDbService: Symbol('productDbService'),
 };
 
 const logicServices = {

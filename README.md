@@ -34,3 +34,13 @@ npm start
 ```
 
 The entry point of the backend application is [ConnectionPublicService.ts](src/services/public/ConnectionPublicService.ts). The agent swarm with system prompts is placed in the [logic](src/services/logic) folder. The ai functions are places in the [tools](src/services/tools) folder 
+
+## What's Inside
+
+ - MongoDb Community `$vectorSearch` implementation
+
+    By using [gpt4all embedding](https://www.npmjs.com/package/gpt4all#embedding) generation and [tfjs](https://www.tensorflow.org/text/guide/word_embeddings) for cosine similarity
+
+ - REPL for product creation
+
+    For automatic embedding generation, you should use `npm run repl`. The product creation command is `ioc.migrationPublicService.createProduct("title", "description")`
