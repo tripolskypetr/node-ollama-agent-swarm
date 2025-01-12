@@ -13,7 +13,7 @@ interface IProductDto {
   description: string;
 }
 
-interface IProductRow extends IProductInternal {
+interface IProductRow extends IProductInternal, IProductDto {
   id: string;
 }
 

@@ -4,13 +4,15 @@ import { inject } from "src/core/di";
 import { tidy, mul, norm, sum, tensor1d, div } from "@tensorflow/tfjs-core";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/config/types";
-import { IContext } from "../base/ContextService";
-import { CC_EMBEDDING_SIMILARITY_COEF } from "src/config/params";
+import { CC_EMBEDDING_SIMILARITY_COEF, CC_GPT4ALL_EMBEDDER_ENABLE, CC_OLLAMA_EMBEDDER_MODEL, CC_OLLAMA_HOST } from "src/config/params";
+import { Ollama } from "ollama";
 
-const getEmbedder = singleshot(
+const getNomicEmbedder = singleshot(
   async () =>
     await loadModel("nomic-embed-text-v1.5.f16.gguf", { type: "embedding" })
 );
+
+const getOllamaEmbedder = singleshot(() => new Ollama({ host: CC_OLLAMA_HOST }));
 
 type Embeddings = number[];
 
@@ -21,9 +23,17 @@ export class EmbeddingService {
     this.loggerService.logCtx("embeddingService createEmbedding", {
       text,
     });
-    const embedder = await getEmbedder();
-    const { embeddings } = await createEmbedding(embedder, text);
-    return Array.from(embeddings);
+    if (CC_GPT4ALL_EMBEDDER_ENABLE) {
+      const embedder = await getNomicEmbedder();
+      const { embeddings } = await createEmbedding(embedder, text);
+      return Array.from(embeddings);
+    }
+    const embedder = await getOllamaEmbedder();
+    const { embedding } = await embedder.embeddings({
+      model: CC_OLLAMA_EMBEDDER_MODEL,
+      prompt: text,
+    });
+    return embedding;
   };
 
   public compareEmbeddings = async (a: Embeddings, b: Embeddings) => {
@@ -37,9 +47,9 @@ export class EmbeddingService {
       const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
       const cosineSimilarity = cosineData[0];
       this.loggerService.debugCtx(
-        `embeddingService compareEmbeddings cosineSimilarity=${cosineSimilarity}`
+        `embeddingService compareEmbeddings result`,
+        { cosineSimilarity }
       );
-      console.log(cosineSimilarity)
       return cosineSimilarity >= CC_EMBEDDING_SIMILARITY_COEF;
     });
   };

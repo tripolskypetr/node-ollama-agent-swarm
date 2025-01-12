@@ -39,6 +39,12 @@ export const BaseCRUD = factory(
       return readTransform(deletedDocument.toJSON());
     }
 
+    public async findAll(filterData: object = {}, sort?: object) {
+      this.loggerService.debug(`BaseCRUD findAll TargetModel=${this.TargetModel.modelName}`, { filterData, sort });
+      const entities = await this.TargetModel.find(filterData, null, { sort });
+      return entities.map((entity) => readTransform(entity.toJSON()));
+    }
+
     public async findById(id: string) {
       this.loggerService.debug(`BaseCRUD findById TargetModel=${this.TargetModel.modelName}`, { id });
       const entity = await this.TargetModel.findById(id);

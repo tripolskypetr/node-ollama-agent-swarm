@@ -6,7 +6,7 @@ import {
   IProductRow,
   ProductModel,
 } from "src/schema/Product.schema";
-import { pickDocuments } from 'functools-kit';
+import { pickDocuments } from "functools-kit";
 import LoggerService from "../base/LoggerService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
@@ -50,13 +50,25 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     const embeddings = await this.embeddingService.createEmbedding(search);
     const iter = pickDocuments<IProductRow>(CC_VECTOR_SEARCH_LIMIT, 0);
     for await (const row of this.iterate()) {
-        console.log(row);
-        if (await this.embeddingService.compareEmbeddings(row.embeddings, embeddings)) {
-
-            iter([row]);
-        }
+      if (
+        await this.embeddingService.compareEmbeddings(
+          row.embeddings,
+          embeddings
+        )
+      ) {
+        iter([row]);
+      }
     }
     return iter().rows;
+  };
+
+  public findAll = async (
+    filterData: Partial<IProductFilterData> = {}
+  ): Promise<IProductRow[]> => {
+    this.loggerService.logCtx(`productDbService findAll`, { filterData });
+    return await super.findAll(filterData, {
+      updatedAt: -1,
+    });
   };
 
   public findByFilter = async (

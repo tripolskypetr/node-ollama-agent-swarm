@@ -27,6 +27,7 @@ The model system prompt can be dynamically changed based on the user behaviour. 
 ```bash
 cp .env.example .env
 ollama pull nemotron-mini:4b
+ollama pull granite-embedding:278m
 # cd docker/mongodb && docker-compose up
 # cd docker/redis && docker-compose up
 npm install
@@ -41,6 +42,10 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
 
     By using [gpt4all embedding](https://www.npmjs.com/package/gpt4all#embedding) generation and [tfjs](https://www.tensorflow.org/text/guide/word_embeddings) for cosine similarity
 
- - REPL for product creation
+ - [REPL](https://en.wikipedia.org/wiki/Read–eval–print_loop) for product creation
 
-    For automatic embedding generation, you should use `npm run repl`. The product creation command is `ioc.migrationPublicService.createProduct("title", "description")`
+    For automatic embedding indexing, you should use `npm run repl`. The product creation command is `ioc.migrationPublicService.createProduct("title", "description")`. The embeddings will be generated automatically
+
+ - Vendor-proved LLM models
+
+    This tool using the commercial-ready products: NVidia [nemotron-mini](https://ollama.com/library/nemotron-mini) for chat and IBM [granite-embedding](https://ollama.com/library/granite-embedding) for database vector indexing. Both of them are the most production-ready cause the reputation of big tech companies

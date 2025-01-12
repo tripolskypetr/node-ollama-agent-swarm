@@ -3,7 +3,7 @@ import { Message, Ollama, Tool } from "ollama";
 import OpenAI from "openai";
 import {
   CC_OLLAMA_HOST,
-  CC_OLLAMA_MODEL,
+  CC_OLLAMA_CHAT_MODEL,
   CC_OPENAI_API_KEY,
   CC_OPENAI_ENABLE,
 } from "src/config/params";
@@ -58,7 +58,7 @@ export class CompletionService {
       return await getOpenAiCompletion(messages, tools);
     }
     return await getOllama().chat({
-      model: CC_OLLAMA_MODEL,
+      model: CC_OLLAMA_CHAT_MODEL,
       keep_alive: "1h",
       messages,
       tools,
