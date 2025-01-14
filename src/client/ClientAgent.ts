@@ -7,11 +7,11 @@ import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
 import { AgentName } from "../utils/getAgentMap";
 import ConnectionPrivateService from "src/services/private/ConnectionPrivateService";
-import HistoryPrivateService from "src/services/private/HistoryPrivateService";
 import CompletionService from "src/services/api/CompletionService";
 import { TContextService } from "src/services/base/ContextService";
 import validateNoToolCall from "src/validation/validateNoToolCall";
 import { IModelMessage } from "src/model/ModelMessage.model";
+import ClientHistoryDbService from "src/services/db/ClientHistoryDbService";
 
 /**
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
@@ -90,8 +90,8 @@ export class ClientAgent implements IAgent {
     TYPES.connectionPrivateService
   );
 
-  readonly historyPrivateService = inject<HistoryPrivateService>(
-    TYPES.historyPrivateService
+  readonly clientHistoryDbService = inject<ClientHistoryDbService>(
+    TYPES.clientHistoryDbService
   );
 
   readonly _toolCommitSubject = new Subject<void>();
@@ -103,9 +103,9 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} _resurrectModel`
     );
     {
-      await this.historyPrivateService.clear(this.params.agentName);
+      await this.clientHistoryDbService.clear(this.params.agentName);
       await this.beginChat();
-      await this.historyPrivateService.push(this.params.agentName, {
+      await this.clientHistoryDbService.push(this.params.agentName, {
         role: "user",
         agentName: this.params.agentName,
         content: TOOL_CALL_EXCEPTION_PROMPT,
@@ -119,7 +119,7 @@ export class ClientAgent implements IAgent {
       );
       return getPlaceholder();
     }
-    await this.historyPrivateService.push(this.params.agentName, {
+    await this.clientHistoryDbService.push(this.params.agentName, {
       ...response.message,
       role: response.message.role as IModelMessage["role"],
       agentName: this.params.agentName,
@@ -131,7 +131,7 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} getCompletion`
     );
-    const messages = await this.historyPrivateService.toArrayForAgent(
+    const messages = await this.clientHistoryDbService.toArrayForAgent(
       this.params.agentName
     );
     return await this.completionService.getCompletion(
@@ -144,13 +144,13 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} beginChat`
     );
-    await this.historyPrivateService.push(this.params.agentName, {
+    await this.clientHistoryDbService.push(this.params.agentName, {
       role: "system",
       agentName: this.params.agentName,
       content: this.params.prompt.trim(),
     });
     if (CC_OLLAMA_EMIT_TOOL_PROTOCOL) {
-      await this.historyPrivateService.push(this.params.agentName, {
+      await this.clientHistoryDbService.push(this.params.agentName, {
         role: "system",
         agentName: this.params.agentName,
         content: TOOL_PROTOCOL_PROMPT,
@@ -162,7 +162,7 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} commitSystemMessage`
     );
-    await this.historyPrivateService.push(this.params.agentName, {
+    await this.clientHistoryDbService.push(this.params.agentName, {
       role: "system",
       agentName: this.params.agentName,
       content: message.trim(),
@@ -173,7 +173,7 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} commitToolOutput content=${content}`
     );
-    await this.historyPrivateService.push(this.params.agentName, {
+    await this.clientHistoryDbService.push(this.params.agentName, {
       role: "tool",
       agentName: this.params.agentName,
       content,
@@ -186,11 +186,11 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} execute begin`,
       { messages }
     );
-    if (await not(this.historyPrivateService.length(this.params.agentName))) {
+    if (await not(this.clientHistoryDbService.length(this.params.agentName))) {
       await this.beginChat();
     }
     for (const message of messages) {
-      await this.historyPrivateService.push(this.params.agentName, {
+      await this.clientHistoryDbService.push(this.params.agentName, {
         role: "user",
 
         agentName: this.params.agentName,
@@ -206,7 +206,7 @@ export class ClientAgent implements IAgent {
         const targetFn = this.params.tools?.find(
           (t) => t.function.name === tool.function.name
         );
-        await this.historyPrivateService.push(this.params.agentName, {
+        await this.clientHistoryDbService.push(this.params.agentName, {
           ...response.message,
           role: response.message.role as IModelMessage["role"],
           agentName: this.params.agentName,
@@ -251,7 +251,7 @@ export class ClientAgent implements IAgent {
       );
     }
     const result = response.message.content;
-    await this.historyPrivateService.push(this.params.agentName, {
+    await this.clientHistoryDbService.push(this.params.agentName, {
       ...response.message,
       role: response.message.role as IModelMessage["role"],
       agentName: this.params.agentName,
@@ -277,7 +277,7 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} dispose`
     );
-    await this.historyPrivateService.dispose(this.params.agentName);
+    await this.clientHistoryDbService.dispose(this.params.agentName);
   };
 }
 

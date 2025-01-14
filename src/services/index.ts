@@ -12,7 +12,6 @@ import NavigateToRefundAgentTool from "./tools/NavigateToRefundAgentTool";
 import NavigateToSalesAgentTool from "./tools/NavigateToSalesAgentTool";
 import ConnectionPublicService from "./public/ConnectionPublicService";
 import ConnectionPrivateService from "./private/ConnectionPrivateService";
-import HistoryPrivateService from "./private/HistoryPrivateService";
 import EmbeddingService from "./api/EmbeddingService";
 import CompletionService from "./api/CompletionService";
 import MongooseService from "./base/MongooseService";
@@ -21,6 +20,7 @@ import ClientSwarmDbService from "./db/ClientSwarmDbService";
 import ProductDbService from "./db/ProductDbService";
 import MigrationPublicService from "./public/MigrationPublicService";
 import MigrationPrivateService from "./private/MigrationPrivateService";
+import ClientHistoryDbService from "./db/ClientHistoryDbService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -42,12 +42,12 @@ const publicServices = {
 
 const privateServices = {
     connectionPrivateService: inject<ConnectionPrivateService>(TYPES.connectionPrivateService),
-    historyPrivateService: inject<HistoryPrivateService>(TYPES.historyPrivateService),
     migrationPrivateService: inject<MigrationPrivateService>(TYPES.migrationPrivateService),
 };
 
 const dbServices = {
     clientSwarmDbService: inject<ClientSwarmDbService>(TYPES.clientSwarmDbService),
+    clientHistoryDbService: inject<ClientHistoryDbService>(TYPES.clientHistoryDbService),
     productDbService: inject<ProductDbService>(TYPES.productDbService),
 };
 

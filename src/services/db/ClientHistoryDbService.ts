@@ -4,14 +4,14 @@ import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import LoggerService from "../base/LoggerService";
 import ClientHistory, { IHistory } from "src/client/ClientHistory";
-import { AgentName, getAgent } from "src/utils/getAgentMap";
+import { AgentName } from "src/utils/getAgentMap";
 import { IModelMessage } from "src/model/ModelMessage.model";
 
 type THistory = {
   [key in keyof IHistory]: any;
 };
 
-export class HistoryPrivateService implements THistory {
+export class ClientHistoryDbService implements THistory {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   readonly contextService = inject<TContextService>(TYPES.contextService);
 
@@ -25,7 +25,7 @@ export class HistoryPrivateService implements THistory {
   );
 
   public length = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService length");
+    this.loggerService.logCtx("clientHistoryDbService length");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -33,7 +33,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public toArrayForAgent = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService toArrayForAgent");
+    this.loggerService.logCtx("clientHistoryDbService toArrayForAgent");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -41,7 +41,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public toArrayForRaw = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService toArrayForRaw");
+    this.loggerService.logCtx("clientHistoryDbService toArrayForRaw");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -49,7 +49,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public push = async (agentName: AgentName, message: IModelMessage) => {
-    this.loggerService.logCtx("historyPrivateService push", { message });
+    this.loggerService.logCtx("clientHistoryDbService push", { message });
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -57,7 +57,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public pop = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService pop");
+    this.loggerService.logCtx("clientHistoryDbService pop");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -65,7 +65,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public clear = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService clear");
+    this.loggerService.logCtx("clientHistoryDbService clear");
     return await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -73,7 +73,7 @@ export class HistoryPrivateService implements THistory {
   };
 
   public dispose = async (agentName: AgentName) => {
-    this.loggerService.logCtx("historyPrivateService dispose");
+    this.loggerService.logCtx("clientHistoryDbService dispose");
     await this.getClientHistory(
       this.contextService.context.clientId,
       agentName
@@ -82,4 +82,4 @@ export class HistoryPrivateService implements THistory {
   };
 }
 
-export default HistoryPrivateService;
+export default ClientHistoryDbService;

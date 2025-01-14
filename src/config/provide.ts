@@ -13,7 +13,6 @@ import RootSwarmService from 'src/services/logic/RootSwarmService';
 import NavigateToRefundAgentTool from 'src/services/tools/NavigateToRefundAgentTool';
 import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentTool';
 import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
-import HistoryPrivateService from 'src/services/private/HistoryPrivateService';
 import CompletionService from "src/services/api/CompletionService";
 import EmbeddingService from "src/services/api/EmbeddingService";
 import MongooseService from 'src/services/base/MongooseService';
@@ -22,6 +21,7 @@ import ClientSwarmDbService from 'src/services/db/ClientSwarmDbService';
 import ProductDbService from 'src/services/db/ProductDbService';
 import MigrationPublicService from 'src/services/public/MigrationPublicService';
 import MigrationPrivateService from 'src/services/private/MigrationPrivateService';
+import ClientHistoryDbService from 'src/services/db/ClientHistoryDbService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -43,7 +43,7 @@ import MigrationPrivateService from 'src/services/private/MigrationPrivateServic
 
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
-    provide(TYPES.historyPrivateService, () => new HistoryPrivateService());
+    provide(TYPES.clientHistoryDbService, () => new ClientHistoryDbService());
     provide(TYPES.migrationPrivateService, () => new MigrationPrivateService());
 }
 
