@@ -21,6 +21,7 @@ import ProductDbService from "./db/ProductDbService";
 import MigrationPublicService from "./public/MigrationPublicService";
 import MigrationPrivateService from "./private/MigrationPrivateService";
 import ClientHistoryDbService from "./db/ClientHistoryDbService";
+import ClientCartDbService from "./db/ClientCartDbService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -48,6 +49,7 @@ const privateServices = {
 const dbServices = {
     clientSwarmDbService: inject<ClientSwarmDbService>(TYPES.clientSwarmDbService),
     clientHistoryDbService: inject<ClientHistoryDbService>(TYPES.clientHistoryDbService),
+    clientCartDbService: inject<ClientCartDbService>(TYPES.clientCartDbService),
     productDbService: inject<ProductDbService>(TYPES.productDbService),
 };
 

@@ -22,6 +22,7 @@ import ProductDbService from 'src/services/db/ProductDbService';
 import MigrationPublicService from 'src/services/public/MigrationPublicService';
 import MigrationPrivateService from 'src/services/private/MigrationPrivateService';
 import ClientHistoryDbService from 'src/services/db/ClientHistoryDbService';
+import ClientCartDbService from 'src/services/db/ClientCartDbService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -44,6 +45,7 @@ import ClientHistoryDbService from 'src/services/db/ClientHistoryDbService';
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
     provide(TYPES.clientHistoryDbService, () => new ClientHistoryDbService());
+    provide(TYPES.clientCartDbService, () => new ClientCartDbService());
     provide(TYPES.migrationPrivateService, () => new MigrationPrivateService());
 }
 

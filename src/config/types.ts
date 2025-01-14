@@ -24,6 +24,7 @@ const privateServices = {
 const dbServices = {
     clientSwarmDbService: Symbol('clientSwarmDbService'),
     clientHistoryDbService: Symbol('clientHistoryDbService'),
+    clientCartDbService: Symbol('clientCartDbService'),
     productDbService: Symbol('productDbService'),
 };
 

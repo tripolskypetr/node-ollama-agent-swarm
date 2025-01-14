@@ -16,7 +16,7 @@ export class ClientHistoryDbService implements THistory {
   readonly contextService = inject<TContextService>(TYPES.contextService);
 
   private getClientHistory = memoize(
-    ([clientId]) => `${clientId}`,
+    ([clientId, agentName]) => `${clientId}-${agentName}`,
     (clientId: string, agentName: AgentName) =>
       new ClientHistory({
         clientId,
