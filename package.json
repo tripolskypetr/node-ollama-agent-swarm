@@ -1,10 +1,18 @@
 {
   "name": "node-ollama-agent-swarm",
-  "module": "index.ts",
   "type": "module",
+  "module": "build/index.mjs",
+  "source": "src/index.ts",
+  "types": "./types.d.ts",
+  "exports": {
+    "types": "./types.d.ts",
+    "import": "./build/index.mjs",
+    "default": "./build/index.mjs"
+  },
   "scripts": {
     "repl": "dotenv -e .env -- npm run build && node -e \"globalThis[Symbol.for('error-handler-installed')] = 1; import('./scripts/repl.mjs')\" --interactive",
     "start": "dotenv -e .env -- npm run build && node ./build/index.mjs",
+    "start:console":  "dotenv -e .env -- npm run build && node ./scripts/console.mjs", 
     "start:debug": "dotenv -e .env -- npm run build && node --inspect-brk ./build/index.mjs",
     "build": "dotenv -e .env -- rollup -c && npm run build:docs",
     "build:docs": "rimraf docs && mkdir docs && touch docs/.gitkeep && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",

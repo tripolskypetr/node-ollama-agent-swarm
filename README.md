@@ -53,3 +53,7 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
  - **Microservice ready**
 
     The client chat history implementation is designed to store messages in in-memory storage (e.g., Redis, Tarantool). The tool execution registry is prepared for horizontal scaling [using gRPC remote hosts](https://github.com/tripolskypetr/node-grpc-monorepo) .
+
+ - **Integrated environment**
+
+    Includes a lot of dev tools like TTS synthesis and speech recognition, REPL javascript interpretation, REST API, WS API, console chat interface
