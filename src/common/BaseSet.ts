@@ -8,7 +8,7 @@ const DEFAULT_TTL_EXPIRE_SECONDS = -1;
 const DEFAULT_ITERATOR_BATCH_SIZE = 100;
 const DEFAULT_MAX_ITEMS = Number.POSITIVE_INFINITY;
 
-interface IConfig {
+export interface IConfig {
   ITERATOR_BATCH_SIZE: number;
   TTL_EXPIRE_SECONDS: number;
   MAX_ITEMS: number;

@@ -6,7 +6,9 @@
     "repl": "dotenv -e .env -- npm run build && node -e \"globalThis[Symbol.for('error-handler-installed')] = 1; import('./scripts/repl.mjs')\" --interactive",
     "start": "dotenv -e .env -- npm run build && node ./build/index.mjs",
     "start:debug": "dotenv -e .env -- npm run build && node --inspect-brk ./build/index.mjs",
-    "build": "dotenv -e .env -- rollup -c",
+    "build": "dotenv -e .env -- rollup -c && npm run build:docs",
+    "build:docs": "rimraf docs && mkdir docs && touch docs/.gitkeep && node ./scripts/dts-docs.cjs ./types.d.ts ./docs",
+    "docs:gpt": "node ./scripts/gpt-docs.mjs",
     "postinstall": "node ./scripts/postinstall.mjs",
     "ollama:dump:win": ".\\scripts\\windows\\dump_ollama.bat",
     "ollama:create:win": ".\\scripts\\windows\\create_ollama.bat",
@@ -24,9 +26,12 @@
     "rollup-plugin-inject-process-env": "1.3.1",
     "rollup-plugin-peer-deps-external": "2.2.4",
     "@rollup/plugin-typescript": "11.1.6",
+    "touch-cli": "0.0.1",
     "tslib": "2.7.0",
+    "rimraf": "6.0.1",
     "kill-port": "2.0.1",
-    "dotenv-cli": "7.4.2"
+    "dotenv-cli": "7.4.2",
+    "glob": "11.0.1"
   },
   "dependencies": {
     "@hono/node-server": "1.13.7",

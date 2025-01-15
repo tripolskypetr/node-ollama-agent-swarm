@@ -7,7 +7,7 @@ import RedisService from 'src/services/base/RedisService';
 const DEFAULT_TTL_EXPIRE_SECONDS = -1;
 const DEFAULT_MAX_ITEMS = Number.POSITIVE_INFINITY;
 
-interface IConfig {
+export interface IConfig {
   TTL_EXPIRE_SECONDS: number;
   MAX_ITEMS: number;
 }
