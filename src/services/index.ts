@@ -8,8 +8,6 @@ import RefundsAgentService from "./logic/agent/RefundsAgentService";
 import SalesAgentService from "./logic/agent/SalesAgentService";
 import TriageAgentService from "./logic/agent/TriageAgentService";
 import RootSwarmService from "./logic/RootSwarmService";
-import NavigateToRefundAgentTool from "./tools/NavigateToRefundAgentTool";
-import NavigateToSalesAgentTool from "./tools/NavigateToSalesAgentTool";
 import ConnectionPublicService from "./public/ConnectionPublicService";
 import ConnectionPrivateService from "./private/ConnectionPrivateService";
 import EmbeddingService from "./api/EmbeddingService";
@@ -60,11 +58,6 @@ const logicServices = {
     rootSwarmService: inject<RootSwarmService>(TYPES.rootSwarmService),
 };
 
-const toolsServices = {
-    navigateToRefundAgentTool: inject<NavigateToRefundAgentTool>(TYPES.navigateToRefundAgentTool),
-    navigateToSalesAgentTool: inject<NavigateToSalesAgentTool>(TYPES.navigateToSalesAgentTool),
-};
-
 init();
 
 export const ioc = {
@@ -74,7 +67,6 @@ export const ioc = {
     ...privateServices,
     ...dbServices,
     ...logicServices,
-    ...toolsServices,
 };
 
 Object.assign(globalThis, { ioc });

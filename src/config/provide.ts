@@ -10,8 +10,6 @@ import RefundsAgentService from 'src/services/logic/agent/RefundsAgentService';
 import SalesAgentService from 'src/services/logic/agent/SalesAgentService';
 import TriageAgentService from 'src/services/logic/agent/TriageAgentService';
 import RootSwarmService from 'src/services/logic/RootSwarmService';
-import NavigateToRefundAgentTool from 'src/services/tools/NavigateToRefundAgentTool';
-import NavigateToSalesAgentTool from 'src/services/tools/NavigateToSalesAgentTool';
 import ConnectionPrivateService from 'src/services/private/ConnectionPrivateService';
 import CompletionService from "src/services/api/CompletionService";
 import EmbeddingService from "src/services/api/EmbeddingService";
@@ -23,6 +21,7 @@ import MigrationPublicService from 'src/services/public/MigrationPublicService';
 import MigrationPrivateService from 'src/services/private/MigrationPrivateService';
 import ClientHistoryDbService from 'src/services/db/ClientHistoryDbService';
 import ClientCartDbService from 'src/services/db/ClientCartDbService';
+import NavigationRegistryService from 'src/services/function/NavigationRegistryService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -55,13 +54,12 @@ import ClientCartDbService from 'src/services/db/ClientCartDbService';
 }
 
 {
+    provide(TYPES.navigationRegistryService, () => new NavigationRegistryService());
+}
+
+{
     provide(TYPES.refundsAgentService, () => new RefundsAgentService());
     provide(TYPES.salesAgentService, () => new SalesAgentService());
     provide(TYPES.triageAgentService, () => new TriageAgentService());
     provide(TYPES.rootSwarmService, () => new RootSwarmService());
-}
-
-{
-    provide(TYPES.navigateToRefundAgentTool, () => new NavigateToRefundAgentTool());
-    provide(TYPES.navigateToSalesAgentTool, () => new NavigateToSalesAgentTool());
 }
