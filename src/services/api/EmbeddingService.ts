@@ -53,6 +53,21 @@ export class EmbeddingService {
       return cosineSimilarity >= CC_EMBEDDING_SIMILARITY_COEF;
     });
   };
+
+  public compareStrings = async (t1: string, t2: string) => {
+    this.loggerService.logCtx("embeddingService compareStrings", {
+      t1,
+      t2,
+    });
+    const [e1, e2] = await Promise.all([
+      this.createEmbedding(t1),
+      this.createEmbedding(t2),
+    ]);
+    return await this.compareEmbeddings(
+      e1,
+      e2,
+    );
+  }
 }
 
 export default EmbeddingService;
