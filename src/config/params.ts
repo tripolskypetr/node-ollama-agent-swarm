@@ -5,6 +5,9 @@ export const CC_OLLAMA_CHAT_MODEL = process.env.CC_OLLAMA_CHAT_MODEL || "nemotro
 export const CC_OLLAMA_EMBEDDER_MODEL = process.env.CC_OLLAMA_EMBEDDER_MODEL || "granite-embedding:278m";
 export const CC_OLLAMA_MESSAGES = 15;
 
+export const CC_WWWROOT_PORT = parseInt(process.env.CC_WWWROOT_PORT) || 80;
+export const CC_EXECUTE_TEST = !!process.env.CC_EXECUTE_TEST;
+
 export const CC_OLLAMA_EMIT_TOOL_PROTOCOL = !!process.env.CC_OLLAMA_EMIT_TOOL_PROTOCOL || false;
 
 export const CC_GPT4ALL_EMBEDDER_ENABLE = !!process.env.CC_GPT4ALL_EMBEDDER_ENABLE || false;

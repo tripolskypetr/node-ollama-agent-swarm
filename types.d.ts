@@ -49,6 +49,7 @@ declare class RefundsAgentService implements IAgent {
         readonly context: src_services_base_ContextService.IContext;
     };
     readonly loggerService: LoggerService$1;
+    readonly navigationRegistryService: NavigationRegistryService;
     private getClientAgent;
     commitSystemMessage: (message: string) => Promise<void>;
     commitToolOutput: (content: string) => Promise<void>;
@@ -62,6 +63,7 @@ declare class SalesAgentService implements IAgent {
         readonly context: src_services_base_ContextService.IContext;
     };
     readonly loggerService: LoggerService$1;
+    readonly navigationRegistryService: NavigationRegistryService;
     private getClientAgent;
     execute: (input: string[]) => Promise<void>;
     beginChat: () => Promise<void>;

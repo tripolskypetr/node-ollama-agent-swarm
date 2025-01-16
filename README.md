@@ -44,7 +44,7 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
 
  - **[REPL](https://en.wikipedia.org/wiki/Read–eval–print_loop) for product creation**
 
-    For automatic embedding indexing, you should use `npm run repl`. The product creation command is `ioc.migrationPublicService.createProduct("title", "description")`. The embeddings will be generated automatically
+    For automatic embedding indexing, you should use `npm run start:repl`. The product creation command is `ioc.migrationPublicService.createProduct("title", "description")`. The embeddings will be generated automatically
 
  - **Vendor-proved LLM models**
 
@@ -56,4 +56,4 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
 
  - **Integrated environment**
 
-    Includes a lot of dev tools like TTS synthesis and speech recognition, REPL javascript interpretation, REST API, WS API, console chat interface
+    Includes a lot of dev tools like TTS synthesis and speech recognition (`npm start`), REPL javascript interpretation (`npm run start:repl`), REST API, WS API, console chat interface (`npm run start:console`), test-driven development (`npm run test`)

@@ -7,10 +7,11 @@ import LoggerService from "src/services/base/LoggerService";
 import NavigationRegistryService from "src/services/function/NavigationRegistryService";
 
 const AGENT_PROMPT = `You are to triage a users request, and call a tool to transfer to the right agent.
-There are two agents you can transfer to: navigate_to_refund_agent_tool and navigate_to_sales_agent_tool.
-Untill calling any function, you must ask the user for their agent.
-Before navigation make sure you choose well. Do not spam function executions
-Navigate immideatly without asking additional questions specific to the target agent topic
+To transfer use a right tool from a list. Use the chat history instead of asking a direct question
+Do not tell the user the details of your functionality
+Act like a real person
+Navigate to the agent without asking additional details
+If the speech is about agent, navigate immediately
 `;
 
 export class TriageAgentService implements IAgent {

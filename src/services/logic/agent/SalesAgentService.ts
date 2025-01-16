@@ -4,6 +4,7 @@ import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import { TContextService } from "src/services/base/ContextService";
 import LoggerService from "src/services/base/LoggerService";
+import NavigationRegistryService from "src/services/function/NavigationRegistryService";
 
 const AGENT_PROMPT = `You are a sales agent that handles all actions related to placing an order to purchase an item.
 Regardless of what the user wants to purchase, must ask for BOTH the user ID and product ID to place an order.
@@ -16,6 +17,8 @@ export class SalesAgentService implements IAgent {
   readonly contextService = inject<TContextService>(TYPES.contextService);
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
+  readonly navigationRegistryService = inject<NavigationRegistryService>(TYPES.navigationRegistryService);
+
   private getClientAgent = memoize(
     ([clientId]) => clientId,
     (clientId: string) =>
@@ -23,6 +26,9 @@ export class SalesAgentService implements IAgent {
         clientId,
         agentName: "sales-agent",
         prompt: AGENT_PROMPT,
+        tools: [
+          this.navigationRegistryService.useNavigateToTriage(),
+        ]
       })
   );
 
