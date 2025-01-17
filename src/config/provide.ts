@@ -22,6 +22,8 @@ import MigrationPrivateService from 'src/services/private/MigrationPrivateServic
 import ClientHistoryDbService from 'src/services/db/ClientHistoryDbService';
 import ClientCartDbService from 'src/services/db/ClientCartDbService';
 import NavigationRegistryService from 'src/services/function/NavigationRegistryService';
+import SpecPublicService from 'src/services/public/SpecPublicService';
+import SpecPrivateService from 'src/services/private/SpecPrivateService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -39,17 +41,19 @@ import NavigationRegistryService from 'src/services/function/NavigationRegistryS
 {
     provide(TYPES.connectionPublicService, () => new ConnectionPublicService());
     provide(TYPES.migrationPublicService, () => new MigrationPublicService());
+    provide(TYPES.specPublicService, () => new SpecPublicService());
 }
 
 {
     provide(TYPES.connectionPrivateService, () => new ConnectionPrivateService());
-    provide(TYPES.clientHistoryDbService, () => new ClientHistoryDbService());
-    provide(TYPES.clientCartDbService, () => new ClientCartDbService());
     provide(TYPES.migrationPrivateService, () => new MigrationPrivateService());
+    provide(TYPES.specPrivateService, () => new SpecPrivateService());
 }
 
 {
+    provide(TYPES.clientHistoryDbService, () => new ClientHistoryDbService());
     provide(TYPES.clientSwarmDbService, () => new ClientSwarmDbService());
+    provide(TYPES.clientCartDbService, () => new ClientCartDbService());
     provide(TYPES.productDbService, () => new ProductDbService());
 }
 

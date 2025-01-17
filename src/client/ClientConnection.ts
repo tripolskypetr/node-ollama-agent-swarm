@@ -36,11 +36,8 @@ export class BaseConnection {
     this.loggerService.debugCtx("BaseConnection waitForOutput", {
       connectionName: this.params.connectionName,
     });
-    const agentChanged = this.rootSwarmService.waitForAgentChange();
-    return await Promise.race([
-      this.outgoingSubject.toPromise().then(({ data }) => data),
-      agentChanged.then(() => ""),
-    ]);
+    const { data } = await this.outgoingSubject.toPromise();
+    return data;
   };
 
   execute = async (message: string[], agentName: AgentName) => {

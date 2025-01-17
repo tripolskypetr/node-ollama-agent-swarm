@@ -2,7 +2,7 @@ import { run } from "worker-testbed";
 
 import { CC_EXECUTE_TEST } from "src/config/params";
 
-import "./spec/sales_navigation.test";
+import "./spec/navigation_registry.test";
 
 if (CC_EXECUTE_TEST) {
     run(import.meta.url, () => {

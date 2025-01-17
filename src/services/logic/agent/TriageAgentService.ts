@@ -12,6 +12,7 @@ Do not tell the user the details of your functionality
 Act like a real person
 Navigate to the agent without asking additional details
 If the speech is about agent, navigate immediately
+If you can't be sure which agent you should navigate to, ask the direct question
 `;
 
 export class TriageAgentService implements IAgent {

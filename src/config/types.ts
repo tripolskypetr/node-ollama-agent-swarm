@@ -14,11 +14,13 @@ const baseServices = {
 const publicServices = {
     connectionPublicService: Symbol('connectionPublicService'),
     migrationPublicService: Symbol('migrationPublicService'),
+    specPublicService: Symbol('specPublicService'),
 };
 
 const privateServices = {
     connectionPrivateService: Symbol('connectionPrivateService'),
     migrationPrivateService: Symbol('migrationPrivateService'),
+    specPrivateService: Symbol('specPrivateService'),
 };
 
 const dbServices = {

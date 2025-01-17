@@ -98,6 +98,22 @@ export class ClientAgent implements IAgent {
 
   constructor(readonly params: IAgentParams) {}
 
+  _emitOuput = async (result: string) => {
+    this.loggerService.debugCtx(
+      `ClientAgent agentName=${this.params.agentName} _emitOuput`
+    );
+    if (!result) {
+      const result = await this._resurrectModel();
+      if (!result) {
+        throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed`);
+      }
+      await this.connectionPrivateService.emit(result, this.params.agentName);
+      return;
+    }
+    await this.connectionPrivateService.emit(result, this.params.agentName);
+    return;
+  }
+
   _resurrectModel = async () => {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} _resurrectModel`
@@ -241,7 +257,7 @@ export class ClientAgent implements IAgent {
         this.loggerService.debugCtx(
           `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
         );
-        await this.connectionPrivateService.emit(result, this.params.agentName);
+        await this._emitOuput(result);
         return;
       }
     }
@@ -264,13 +280,13 @@ export class ClientAgent implements IAgent {
       );
     if (isInvalid) {
       const result = await this._resurrectModel();
-      await this.connectionPrivateService.emit(result, this.params.agentName);
+      await this._emitOuput(result);
       return;
     }
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
     );
-    await this.connectionPrivateService.emit(result, this.params.agentName);
+    await this._emitOuput(result);
   }) as unknown as IAgent["execute"];
 
   dispose = async () => {

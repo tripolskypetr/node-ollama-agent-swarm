@@ -137,6 +137,7 @@ declare class EmbeddingService {
     readonly loggerService: LoggerService;
     createEmbedding: (text: string) => Promise<Embeddings>;
     compareEmbeddings: (a: Embeddings, b: Embeddings) => Promise<boolean>;
+    compareStrings: (t1: string, t2: string) => Promise<boolean>;
 }
 
 declare class CompletionService {
@@ -336,6 +337,30 @@ declare class ClientCartDbService implements TCart {
     dispose: (agentName: AgentName) => Promise<void>;
 }
 
+declare class SpecPrivateService {
+    private readonly loggerService;
+    private readonly rootSwarmService;
+    private readonly connectionPrivateService;
+    getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
+    getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
+    setAgent: (agentName: AgentName) => Promise<void>;
+    complete: (msg: string) => Promise<string>;
+}
+
+interface ISpecPrivateService extends SpecPrivateService {
+}
+type TSpecPrivateService = {
+    [key in keyof ISpecPrivateService]: any;
+};
+declare class SpecPublicService implements TSpecPrivateService {
+    private readonly loggerService;
+    private readonly specPrivateService;
+    complete: (msg: string) => Promise<string>;
+    getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
+    getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
+    setAgent: (agentName: AgentName) => Promise<void>;
+}
+
 declare const ioc: {
     refundsAgentService: RefundsAgentService;
     salesAgentService: SalesAgentService;
@@ -347,8 +372,10 @@ declare const ioc: {
     productDbService: ProductDbService;
     connectionPrivateService: ConnectionPrivateService;
     migrationPrivateService: MigrationPrivateService;
+    specPrivateService: SpecPrivateService;
     connectionPublicService: ConnectionPublicService;
     migrationPublicService: MigrationPublicService;
+    specPublicService: SpecPublicService;
     loggerService: LoggerService;
     errorService: ErrorService;
     contextService: {

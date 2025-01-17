@@ -20,6 +20,8 @@ import MigrationPublicService from "./public/MigrationPublicService";
 import MigrationPrivateService from "./private/MigrationPrivateService";
 import ClientHistoryDbService from "./db/ClientHistoryDbService";
 import ClientCartDbService from "./db/ClientCartDbService";
+import SpecPrivateService from "./private/SpecPrivateService";
+import SpecPublicService from "./public/SpecPublicService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -37,11 +39,13 @@ const baseServices = {
 const publicServices = {
     connectionPublicService: inject<ConnectionPublicService>(TYPES.connectionPublicService),
     migrationPublicService: inject<MigrationPublicService>(TYPES.migrationPublicService),
+    specPublicService: inject<SpecPublicService>(TYPES.specPublicService),
 };
 
 const privateServices = {
     connectionPrivateService: inject<ConnectionPrivateService>(TYPES.connectionPrivateService),
     migrationPrivateService: inject<MigrationPrivateService>(TYPES.migrationPrivateService),
+    specPrivateService: inject<SpecPrivateService>(TYPES.specPrivateService),
 };
 
 const dbServices = {
