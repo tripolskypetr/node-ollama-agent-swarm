@@ -341,10 +341,12 @@ declare class SpecPrivateService {
     private readonly loggerService;
     private readonly rootSwarmService;
     private readonly connectionPrivateService;
+    private readonly embeddingService;
     getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
     setAgent: (agentName: AgentName) => Promise<void>;
     complete: (msg: string) => Promise<string>;
+    compareStrings: (a: string, b: string) => Promise<boolean>;
 }
 
 interface ISpecPrivateService extends SpecPrivateService {
@@ -359,6 +361,7 @@ declare class SpecPublicService implements TSpecPrivateService {
     getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
     setAgent: (agentName: AgentName) => Promise<void>;
+    compareStrings: (a: string, b: string) => Promise<boolean>;
 }
 
 declare const ioc: {
