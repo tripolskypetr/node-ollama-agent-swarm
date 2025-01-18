@@ -1,4 +1,4 @@
-import { Subject } from "functools-kit";
+import { queued, Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
@@ -11,8 +11,8 @@ interface IConnectionParams {
   clientId: string;
 }
 
-type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void>;
-type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void>;
+type SendMessageFn = (outgoing: IOutgoingMessage) => Promise<void> | void;
+type ReceiveMessageFn = (incoming: IIncomingMessage) => Promise<void> | void;
 
 export interface IConnection {
   dispose(): Promise<void>;
@@ -79,7 +79,7 @@ export class BaseConnection {
   };
 
   connect = (
-    connector: (outgoing: IOutgoingMessage) => void | Promise<void>
+    connector: SendMessageFn
   ) => {
     this.loggerService.debugCtx("BaseConnection connect", {
       connectionName: this.params.connectionName,
@@ -87,7 +87,7 @@ export class BaseConnection {
     this.outgoingSubject.subscribe(async (outgoing) => {
       await connector(outgoing);
     });
-    return async (incoming: IIncomingMessage) => {
+    return queued(async (incoming: IIncomingMessage) => {
       this.loggerService.debugCtx("BaseConnection connect call", {
         connectionName: this.params.connectionName,
       });
@@ -95,7 +95,7 @@ export class BaseConnection {
         incoming.data,
         await this.rootSwarmService.getAgentName()
       );
-    };
+    }) as ReceiveMessageFn;
   };
 
   emit = async (outgoing: string, agentName: AgentName) => {

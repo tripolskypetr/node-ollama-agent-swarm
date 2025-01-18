@@ -1,4 +1,4 @@
-import { not, or, queued, Subject } from "functools-kit";
+import { not, or, Subject } from "functools-kit";
 import { omit } from "lodash-es";
 import { Message, Tool } from "ollama";
 import { CC_OLLAMA_EMIT_TOOL_PROTOCOL } from "src/config/params";
@@ -197,7 +197,7 @@ export class ClientAgent implements IAgent {
     await this._toolCommitSubject.next();
   };
 
-  execute = queued(async (messages: string[]) => {
+  execute = async (messages: string[]) => {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} execute begin`,
       { messages }
@@ -287,7 +287,7 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
     );
     await this._emitOuput(result);
-  }) as unknown as IAgent["execute"];
+  };
 
   dispose = async () => {
     this.loggerService.debugCtx(
