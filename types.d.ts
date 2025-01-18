@@ -3,12 +3,13 @@ import { TSubject } from 'functools-kit';
 import * as src_services_base_ContextService from 'src/services/base/ContextService';
 import { IAgent } from 'src/client/ClientAgent';
 import LoggerService$1 from 'src/services/base/LoggerService';
-import NavigationRegistryService from 'src/services/function/NavigationRegistryService';
+import NavigationRegistryService$1 from 'src/services/function/NavigationRegistryService';
+import PharmaProductRegistryService$1 from 'src/services/function/PharmaProductRegistryService';
 import { ISwarm } from 'src/client/ClientSwarm';
 import { IConnection } from 'src/client/ClientConnection';
 import * as src_model_WsMessage_model from 'src/model/WsMessage.model';
 import { IOutgoingMessage, IIncomingMessage } from 'src/model/WsMessage.model';
-import { AgentName } from 'src/utils/getAgentMap';
+import { AgentName as AgentName$1 } from 'src/utils/getAgentMap';
 import { Message, Tool } from 'ollama';
 import Redis from 'ioredis';
 import * as src_common_BaseMap from 'src/common/BaseMap';
@@ -18,6 +19,9 @@ import { IHistory } from 'src/client/ClientHistory';
 import { IModelMessage } from 'src/model/ModelMessage.model';
 import { ICart } from 'src/client/ClientCart';
 import { ICartItem } from 'src/model/CartItem.model';
+import RefundsAgentService$1 from 'src/services/logic/agent/RefundsAgentService';
+import SalesAgentService$1 from 'src/services/logic/agent/SalesAgentService';
+import TriageAgentService$1 from 'src/services/logic/agent/TriageAgentService';
 
 interface IContext {
     clientId: string;
@@ -49,7 +53,7 @@ declare class RefundsAgentService implements IAgent {
         readonly context: src_services_base_ContextService.IContext;
     };
     readonly loggerService: LoggerService$1;
-    readonly navigationRegistryService: NavigationRegistryService;
+    readonly navigationRegistryService: NavigationRegistryService$1;
     private getClientAgent;
     commitSystemMessage: (message: string) => Promise<void>;
     commitToolOutput: (content: string) => Promise<void>;
@@ -63,7 +67,8 @@ declare class SalesAgentService implements IAgent {
         readonly context: src_services_base_ContextService.IContext;
     };
     readonly loggerService: LoggerService$1;
-    readonly navigationRegistryService: NavigationRegistryService;
+    readonly navigationRegistryService: NavigationRegistryService$1;
+    readonly pharmaProductRegistryService: PharmaProductRegistryService$1;
     private getClientAgent;
     execute: (input: string[]) => Promise<void>;
     beginChat: () => Promise<void>;
@@ -77,7 +82,7 @@ declare class TriageAgentService implements IAgent {
         readonly context: src_services_base_ContextService.IContext;
     };
     readonly loggerService: LoggerService$1;
-    readonly navigationRegistryService: NavigationRegistryService;
+    readonly navigationRegistryService: NavigationRegistryService$1;
     private getClientAgent;
     execute: (input: string[]) => Promise<void>;
     beginChat: () => Promise<void>;
@@ -107,13 +112,13 @@ declare class ConnectionPrivateService implements IConnection {
     readonly rootSwarmService: RootSwarmService;
     private getClientConnection;
     waitForOutput: () => Promise<string>;
-    connect: (connector: (outgoing: IOutgoingMessage) => void | Promise<void>) => (incoming: src_model_WsMessage_model.IIncomingMessage) => Promise<void>;
+    connect: (connector: (outgoing: IOutgoingMessage) => void | Promise<void>) => (incoming: src_model_WsMessage_model.IIncomingMessage) => Promise<void> | void;
     complete: (messages: string[]) => Promise<string>;
-    execute: (messages: string[], agentName: AgentName) => Promise<string>;
-    commitToolOutput: (content: string, agentName: AgentName) => Promise<void>;
-    commitSystemMessage: (message: string, agentName: AgentName) => Promise<void>;
+    execute: (messages: string[], agentName: AgentName$1) => Promise<string>;
+    commitToolOutput: (content: string, agentName: AgentName$1) => Promise<void>;
+    commitSystemMessage: (message: string, agentName: AgentName$1) => Promise<void>;
     dispose: () => Promise<void>;
-    emit: (outgoing: string, agentName: AgentName) => Promise<void>;
+    emit: (outgoing: string, agentName: AgentName$1) => Promise<void>;
 }
 
 type TConnection = {
@@ -122,14 +127,14 @@ type TConnection = {
 declare class ConnectionPublicService implements TConnection {
     readonly loggerService: LoggerService;
     readonly connectionPrivateService: ConnectionPrivateService;
-    execute: (clientId: string, messages: string[], agentName: AgentName) => Promise<string>;
+    execute: (clientId: string, messages: string[], agentName: AgentName$1) => Promise<string>;
     waitForOutput: (clientId: string) => Promise<string>;
     complete: (clientId: string, messages: string[]) => Promise<string>;
     connect: (clientId: string, connector: (outgoing: IOutgoingMessage) => void | Promise<void>) => (incoming: IIncomingMessage) => Promise<void>;
-    commitToolOutput: (clientId: string, content: string, agentName: AgentName) => Promise<void>;
-    commitSystemMessage: (clientId: string, message: string, agentName: AgentName) => Promise<void>;
+    commitToolOutput: (clientId: string, content: string, agentName: AgentName$1) => Promise<void>;
+    commitSystemMessage: (clientId: string, message: string, agentName: AgentName$1) => Promise<void>;
     dispose: (clientId: string) => Promise<void>;
-    emit: (clientId: string, outgoing: string, agentName: AgentName) => Promise<void>;
+    emit: (clientId: string, outgoing: string, agentName: AgentName$1) => Promise<void>;
 }
 
 type Embeddings = number[];
@@ -313,13 +318,13 @@ declare class ClientHistoryDbService implements THistory {
         readonly context: IContext;
     };
     private getClientHistory;
-    length: (agentName: AgentName) => Promise<number>;
-    toArrayForAgent: (agentName: AgentName) => Promise<IModelMessage[]>;
-    toArrayForRaw: (agentName: AgentName) => Promise<IModelMessage[]>;
-    push: (agentName: AgentName, message: IModelMessage) => Promise<void>;
-    pop: (agentName: AgentName) => Promise<any>;
-    clear: (agentName: AgentName) => Promise<void>;
-    dispose: (agentName: AgentName) => Promise<void>;
+    length: (agentName: AgentName$1) => Promise<number>;
+    toArrayForAgent: (agentName: AgentName$1) => Promise<IModelMessage[]>;
+    toArrayForRaw: (agentName: AgentName$1) => Promise<IModelMessage[]>;
+    push: (agentName: AgentName$1, message: IModelMessage) => Promise<void>;
+    pop: (agentName: AgentName$1) => Promise<any>;
+    clear: (agentName: AgentName$1) => Promise<void>;
+    dispose: (agentName: AgentName$1) => Promise<void>;
 }
 
 type TCart = {
@@ -331,12 +336,12 @@ declare class ClientCartDbService implements TCart {
         readonly context: IContext;
     };
     private getClientCart;
-    length: (agentName: AgentName) => Promise<number>;
-    toArray: (agentName: AgentName) => Promise<ICartItem[]>;
-    push: (agentName: AgentName, message: ICartItem) => Promise<void>;
-    pop: (agentName: AgentName) => Promise<any>;
-    clear: (agentName: AgentName) => Promise<void>;
-    dispose: (agentName: AgentName) => Promise<void>;
+    length: (agentName: AgentName$1) => Promise<number>;
+    toArray: (agentName: AgentName$1) => Promise<ICartItem[]>;
+    push: (agentName: AgentName$1, message: ICartItem) => Promise<void>;
+    pop: (agentName: AgentName$1) => Promise<any>;
+    clear: (agentName: AgentName$1) => Promise<void>;
+    dispose: (agentName: AgentName$1) => Promise<void>;
 }
 
 declare class SpecPrivateService {
@@ -346,7 +351,7 @@ declare class SpecPrivateService {
     private readonly embeddingService;
     getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
-    setAgent: (agentName: AgentName) => Promise<void>;
+    setAgent: (agentName: AgentName$1) => Promise<void>;
     complete: (msg: string) => Promise<string>;
     compareStrings: (a: string, b: string) => Promise<boolean>;
 }
@@ -362,8 +367,83 @@ declare class SpecPublicService implements TSpecPrivateService {
     complete: (msg: string) => Promise<string>;
     getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
-    setAgent: (agentName: AgentName) => Promise<void>;
+    setAgent: (agentName: AgentName$1) => Promise<void>;
     compareStrings: (a: string, b: string) => Promise<boolean>;
+}
+
+declare const getAgentMap: (() => {
+    "refunds-agent": RefundsAgentService$1;
+    "sales-agent": SalesAgentService$1;
+    "triage-agent": TriageAgentService$1;
+}) & functools_kit.ISingleshotClearable;
+type AgentName = keyof ReturnType<typeof getAgentMap>;
+
+declare class NavigationRegistryService {
+    readonly loggerService: LoggerService;
+    private registry;
+    useNavigateToRefund: () => {
+        implementation: (agentName: AgentName) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {};
+                required: any[];
+            };
+        };
+    };
+    useNavigateToSales: () => {
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        implementation: (agentName: AgentName) => Promise<void>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {};
+                required: any[];
+            };
+        };
+    };
+    useNavigateToTriage: () => {
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        implementation: (agentName: AgentName) => Promise<void>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {};
+                required: any[];
+            };
+        };
+    };
+    protected init: () => void;
+}
+
+declare class PharmaProductRegistryService {
+    readonly loggerService: LoggerService;
+    private registry;
+    useListPharmaProduct: () => {
+        implementation: (agentName: AgentName) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {};
+                required: any[];
+            };
+        };
+    };
+    protected init: () => void;
 }
 
 declare const ioc: {
@@ -371,6 +451,8 @@ declare const ioc: {
     salesAgentService: SalesAgentService;
     triageAgentService: TriageAgentService;
     rootSwarmService: RootSwarmService;
+    navigationRegistryService: NavigationRegistryService;
+    pharmaProductRegistryService: PharmaProductRegistryService;
     clientSwarmDbService: ClientSwarmDbService;
     clientHistoryDbService: ClientHistoryDbService;
     clientCartDbService: ClientCartDbService;

@@ -2,9 +2,9 @@ import { inject } from "src/core/di";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/config/types";
 import { ToolRegistry } from "functools-kit";
-import NavigateToRefundTool from "src/tools/NavigateToRefundTool";
-import NavigateToSalesTool from "src/tools/NavigateToSalesTool";
-import NavigateToTriageTool from "src/tools/NavigateToTriageTool";
+import NavigateToRefundTool from "src/tools/navigate/NavigateToRefundTool";
+import NavigateToSalesTool from "src/tools/navigate/NavigateToSalesTool";
+import NavigateToTriageTool from "src/tools/navigate/NavigateToTriageTool";
 
 export class NavigationRegistryService {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);

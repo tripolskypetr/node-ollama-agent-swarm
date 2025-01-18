@@ -1,4 +1,4 @@
-import { queued, Subject } from "functools-kit";
+import { Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
@@ -80,14 +80,14 @@ export class BaseConnection {
 
   connect = (
     connector: SendMessageFn
-  ) => {
+  ): ReceiveMessageFn => {
     this.loggerService.debugCtx("BaseConnection connect", {
       connectionName: this.params.connectionName,
     });
     this.outgoingSubject.subscribe(async (outgoing) => {
       await connector(outgoing);
     });
-    return queued(async (incoming: IIncomingMessage) => {
+    return async (incoming: IIncomingMessage) => {
       this.loggerService.debugCtx("BaseConnection connect call", {
         connectionName: this.params.connectionName,
       });
@@ -95,7 +95,7 @@ export class BaseConnection {
         incoming.data,
         await this.rootSwarmService.getAgentName()
       );
-    }) as ReceiveMessageFn;
+    };
   };
 
   emit = async (outgoing: string, agentName: AgentName) => {

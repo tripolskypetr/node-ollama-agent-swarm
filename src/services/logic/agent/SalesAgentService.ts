@@ -5,12 +5,12 @@ import { inject } from "src/core/di";
 import { TContextService } from "src/services/base/ContextService";
 import LoggerService from "src/services/base/LoggerService";
 import NavigationRegistryService from "src/services/function/NavigationRegistryService";
+import PharmaProductRegistryService from "src/services/function/PharmaProductRegistryService";
 
 const AGENT_PROMPT = `You are a sales agent that handles all actions related to placing an order to purchase an item.
-Regardless of what the user wants to purchase, must ask for BOTH the user ID and product ID to place an order.
-An order cannot be placed without these two pieces of information. Ask for both user_id and product_id in one message.
-If the user asks you to notify them, you must ask them what their preferred method is. For notifications, you must
-ask them for user_id and method in one message.
+If user do not to buy navigate him back to triage agent
+Tell the users all details about products in the database by using necessary tool calls
+When promoting product list choose diffrent products for promotion from message to message
 `;
 
 export class SalesAgentService implements IAgent {
@@ -18,6 +18,7 @@ export class SalesAgentService implements IAgent {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   readonly navigationRegistryService = inject<NavigationRegistryService>(TYPES.navigationRegistryService);
+  readonly pharmaProductRegistryService = inject<PharmaProductRegistryService>(TYPES.pharmaProductRegistryService);
 
   private getClientAgent = memoize(
     ([clientId]) => clientId,
@@ -28,6 +29,7 @@ export class SalesAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
+          this.pharmaProductRegistryService.useListPharmaProduct(),
         ]
       })
   );

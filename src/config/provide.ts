@@ -24,6 +24,7 @@ import ClientCartDbService from 'src/services/db/ClientCartDbService';
 import NavigationRegistryService from 'src/services/function/NavigationRegistryService';
 import SpecPublicService from 'src/services/public/SpecPublicService';
 import SpecPrivateService from 'src/services/private/SpecPrivateService';
+import PharmaProductRegistryService from 'src/services/function/PharmaProductRegistryService';
 
 {
     provide(TYPES.completionService, () => new CompletionService());
@@ -59,6 +60,7 @@ import SpecPrivateService from 'src/services/private/SpecPrivateService';
 
 {
     provide(TYPES.navigationRegistryService, () => new NavigationRegistryService());
+    provide(TYPES.pharmaProductRegistryService, () => new PharmaProductRegistryService());
 }
 
 {

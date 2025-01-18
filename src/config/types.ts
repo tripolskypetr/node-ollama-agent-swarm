@@ -32,6 +32,7 @@ const dbServices = {
 
 const functionServices = {
     navigationRegistryService: Symbol('navigationRegistryService'),
+    pharmaProductRegistryService: Symbol('pharmaProductRegistryService'),
 };
 
 const logicServices = {

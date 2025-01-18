@@ -22,6 +22,8 @@ import ClientHistoryDbService from "./db/ClientHistoryDbService";
 import ClientCartDbService from "./db/ClientCartDbService";
 import SpecPrivateService from "./private/SpecPrivateService";
 import SpecPublicService from "./public/SpecPublicService";
+import NavigationRegistryService from "./function/NavigationRegistryService";
+import PharmaProductRegistryService from "./function/PharmaProductRegistryService";
 
 const apiServices = {
     embeddingService: inject<EmbeddingService>(TYPES.embeddingService),
@@ -55,6 +57,11 @@ const dbServices = {
     productDbService: inject<ProductDbService>(TYPES.productDbService),
 };
 
+const functionServices = {
+    navigationRegistryService: inject<NavigationRegistryService>(TYPES.navigationRegistryService),
+    pharmaProductRegistryService: inject<PharmaProductRegistryService>(TYPES.pharmaProductRegistryService),
+};
+
 const logicServices = {
     refundsAgentService: inject<RefundsAgentService>(TYPES.refundsAgentService),
     salesAgentService: inject<SalesAgentService>(TYPES.salesAgentService),
@@ -70,6 +77,7 @@ export const ioc = {
     ...publicServices,
     ...privateServices,
     ...dbServices,
+    ...functionServices,
     ...logicServices,
 };
 

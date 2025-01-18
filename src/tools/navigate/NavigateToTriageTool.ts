@@ -17,7 +17,7 @@ export class NavigateToTriageTool implements IAgentTool {
     ioc.loggerService.logCtx("navigateToTriageTool call", { agentName });
     await ioc.connectionPrivateService.commitToolOutput("Navigation success", agentName);
     await ioc.rootSwarmService.setAgent("triage-agent");
-    ioc.connectionPrivateService.emit(
+    await ioc.connectionPrivateService.emit(
       "Hello. I am a triage agent. Please provide me with the necessary information to process your sale.",
       "triage-agent"
     );

@@ -17,7 +17,7 @@ export class NavigateToSalesTool implements IAgentTool {
     ioc.loggerService.logCtx("navigateToSalesTool call", { agentName });
     await ioc.connectionPrivateService.commitToolOutput("Navigation success", agentName);
     await ioc.rootSwarmService.setAgent("sales-agent");
-    ioc.connectionPrivateService.emit(
+    await ioc.connectionPrivateService.emit(
       "Hello. I am a sales agent. Please provide me with the necessary information to process your sale.",
       "sales-agent"
     );

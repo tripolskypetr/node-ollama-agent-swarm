@@ -17,7 +17,7 @@ export class NavigateToRefundTool implements IAgentTool {
     ioc.loggerService.logCtx("navigateToRefundTool call", { agentName });
     await ioc.connectionPrivateService.commitToolOutput("Navigation success", agentName);
     await ioc.rootSwarmService.setAgent("refunds-agent");
-    ioc.connectionPrivateService.emit(
+    await ioc.connectionPrivateService.emit(
       "Hello. I am a refund agent. Please provide me with the necessary information to process your refund.",
       "refunds-agent"
     );

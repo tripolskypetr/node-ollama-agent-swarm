@@ -1,4 +1,4 @@
-import { not, or, Subject } from "functools-kit";
+import { not, queued, Subject } from "functools-kit";
 import { omit } from "lodash-es";
 import { Message, Tool } from "ollama";
 import { CC_OLLAMA_EMIT_TOOL_PROTOCOL } from "src/config/params";
@@ -197,7 +197,7 @@ export class ClientAgent implements IAgent {
     await this._toolCommitSubject.next();
   };
 
-  execute = async (messages: string[]) => {
+  execute = queued(async (messages: string[]) => {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} execute begin`,
       { messages }
@@ -234,7 +234,10 @@ export class ClientAgent implements IAgent {
             tool.function.arguments
           ))
         ) {
-          await targetFn.implementation(
+          /**
+           * @description Do not await to await deadlock! The tool can send the message to the agent by emulating user messages
+           */
+          targetFn.implementation(
             this.params.agentName,
             tool.function.arguments
           );
@@ -272,7 +275,7 @@ export class ClientAgent implements IAgent {
       role: response.message.role as IModelMessage["role"],
       agentName: this.params.agentName,
     });
-    const isInvalid = await or(not(validateNoToolCall(result)), !result);
+    const isInvalid = await not(validateNoToolCall(result));
     isInvalid &&
       this.loggerService.debugCtx(
         `ClientAgent agentName=${this.params.agentName} execute invalid tool call detected`,
@@ -287,7 +290,7 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
     );
     await this._emitOuput(result);
-  };
+  }) as IAgent['execute'];
 
   dispose = async () => {
     this.loggerService.debugCtx(
