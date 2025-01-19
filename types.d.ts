@@ -54,6 +54,7 @@ declare class RefundsAgentService implements IAgent {
     };
     readonly loggerService: LoggerService$1;
     readonly navigationRegistryService: NavigationRegistryService$1;
+    readonly pharmaProductRegistryService: PharmaProductRegistryService$1;
     private getClientAgent;
     commitSystemMessage: (message: string) => Promise<void>;
     commitToolOutput: (content: string) => Promise<void>;
@@ -442,6 +443,27 @@ declare class PharmaProductRegistryService {
                 type: string;
                 properties: {};
                 required: any[];
+            };
+        };
+    };
+    useFindPharmaProductByKeyword: () => {
+        implementation: (agentName: AgentName, { keyword }: {
+            keyword?: string;
+        }) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {
+                    keyword: {
+                        type: string;
+                        description: string;
+                    };
+                };
+                required: string[];
             };
         };
     };

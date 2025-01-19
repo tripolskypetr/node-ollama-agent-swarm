@@ -5,6 +5,7 @@ import { inject } from "src/core/di";
 import { TContextService } from "src/services/base/ContextService";
 import LoggerService from "src/services/base/LoggerService";
 import NavigationRegistryService from "src/services/function/NavigationRegistryService";
+import PharmaProductRegistryService from "src/services/function/PharmaProductRegistryService";
 
 const AGENT_PROMPT = `You are a refund agent that handles all actions related to refunds after a return has been processed.
 You must ask for both the user ID and item ID to initiate a refund. Ask for both user_id and item_id in one message.
@@ -17,6 +18,7 @@ export class RefundsAgentService implements IAgent {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   readonly navigationRegistryService = inject<NavigationRegistryService>(TYPES.navigationRegistryService);
+  readonly pharmaProductRegistryService = inject<PharmaProductRegistryService>(TYPES.pharmaProductRegistryService);
 
   private getClientAgent = memoize(
     ([clientId]) => clientId,
@@ -27,6 +29,8 @@ export class RefundsAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
+          this.pharmaProductRegistryService.useListPharmaProduct(),
+          this.pharmaProductRegistryService.useFindPharmaProductByKeyword(),
         ]
       })
   );

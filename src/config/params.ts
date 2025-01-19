@@ -2,7 +2,7 @@ export const CC_MONGO_CONNECTION_STRING = process.env.CC_MONGO_CONNECTION_STRING
 
 export const CC_OLLAMA_HOST = process.env.CC_OLLAMA_HOST || "http://127.0.0.1:11434";
 export const CC_OLLAMA_CHAT_MODEL = process.env.CC_OLLAMA_CHAT_MODEL || "nemotron-mini:4b";
-export const CC_OLLAMA_EMBEDDER_MODEL = process.env.CC_OLLAMA_EMBEDDER_MODEL || "granite-embedding:278m";
+export const CC_OLLAMA_EMBEDDER_MODEL = process.env.CC_OLLAMA_EMBEDDER_MODEL || "nomic-embed-text";
 export const CC_OLLAMA_MESSAGES = 15;
 
 export const CC_WWWROOT_PORT = parseInt(process.env.CC_WWWROOT_PORT) || 80;

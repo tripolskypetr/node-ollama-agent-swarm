@@ -48,7 +48,7 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
 
  - **Vendor-proved LLM models**
 
-    This tool using the commercial-ready products: NVidia [nemotron-mini](https://ollama.com/library/nemotron-mini) for chat and IBM [granite-embedding](https://ollama.com/library/granite-embedding) for database vector indexing. Both of them are the most production-ready cause the reputation of big tech companies
+    This tool using the commercial-ready products: NVidia [nemotron-mini](https://ollama.com/library/nemotron-mini) for chat and Nomic [embed-text](https://ollama.com/library/nomic-embed-text) for database vector indexing. Both of them are the most production-ready cause the reputation of big tech companies
 
  - **Microservice ready**
 

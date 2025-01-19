@@ -30,6 +30,7 @@ export class SalesAgentService implements IAgent {
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
           this.pharmaProductRegistryService.useListPharmaProduct(),
+          this.pharmaProductRegistryService.useFindPharmaProductByKeyword(),
         ]
       })
   );
