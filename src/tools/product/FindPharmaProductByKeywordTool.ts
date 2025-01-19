@@ -5,7 +5,7 @@ import { ioc } from "src/services";
 
 const PARAMETER_SCHEMA = z
   .object({
-    keyword: z
+    sentence_with_keywords: z
       .string()
       .min(1, "Keyword is required")
       .describe(
@@ -26,9 +26,9 @@ export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
     return success;
   };
 
-  call = async (agentName: AgentName, { keyword }: Params) => {
-    ioc.loggerService.logCtx("findPharmaProductByKeywordTool call", { agentName, keyword });
-    const [product = null] = await ioc.productDbService.findByVector(keyword);
+  call = async (agentName: AgentName, { sentence_with_keywords }: Params) => {
+    ioc.loggerService.logCtx("findPharmaProductByKeywordTool call", { agentName, sentence_with_keywords });
+    const [product = null] = await ioc.productDbService.findByVector(sentence_with_keywords);
     if (product) {
       await ioc.connectionPrivateService.commitToolOutput(
         `The next pharma product found in database: ${JSON.stringify({ title: product.title, description: product.description })}`,
@@ -59,13 +59,13 @@ export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
       parameters: {
         type: "object",
         properties: {
-          keyword: {
+          sentence_with_keywords: {
             type: "string",
             description:
-              "The keyword to search for in pharma product names or descriptions.",
+              "THE SEVERAL keywords in sentence for embedding vector search",
           },
         },
-        required: ["keyword"],
+        required: ["sentence_with_keywords"],
       },
     },
   });

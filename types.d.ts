@@ -447,8 +447,8 @@ declare class PharmaProductRegistryService {
         };
     };
     useFindPharmaProductByKeyword: () => {
-        implementation: (agentName: AgentName, { keyword }: {
-            keyword?: string;
+        implementation: (agentName: AgentName, { sentence_with_keywords }: {
+            sentence_with_keywords?: string;
         }) => Promise<void>;
         validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
         type: string;
@@ -458,7 +458,7 @@ declare class PharmaProductRegistryService {
             parameters: {
                 type: string;
                 properties: {
-                    keyword: {
+                    sentence_with_keywords: {
                         type: string;
                         description: string;
                     };
