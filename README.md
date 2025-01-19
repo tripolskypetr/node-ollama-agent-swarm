@@ -27,7 +27,7 @@ The model system prompt can be dynamically changed based on the user behaviour. 
 ```bash
 cp .env.example .env
 ollama pull nemotron-mini:4b
-ollama pull granite-embedding:278m
+ollama pull nomic-embed-text
 # cd docker/mongodb && docker-compose up
 # cd docker/redis && docker-compose up
 npm install
