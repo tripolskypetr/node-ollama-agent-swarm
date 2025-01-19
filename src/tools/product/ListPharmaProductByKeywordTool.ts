@@ -2,6 +2,7 @@ import { IAgentTool } from "src/client/ClientAgent";
 import { AgentName } from "src/utils/getAgentMap";
 import { z } from "zod";
 import { ioc } from "src/services";
+import { split, str } from "functools-kit";
 
 const PARAMETER_SCHEMA = z
   .object({
@@ -16,9 +17,9 @@ const PARAMETER_SCHEMA = z
 
 type Params = z.infer<typeof PARAMETER_SCHEMA>;
 
-export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
+export class ListPharmaProductByKeywordTool implements IAgentTool<Params> {
   validate = async (agentName: AgentName, params: Record<string, unknown>) => {
-    ioc.loggerService.logCtx("findPharmaProductByKeywordTool validate", {
+    ioc.loggerService.logCtx("listPharmaProductByKeywordTool validate", {
       agentName,
       params,
     });
@@ -27,20 +28,27 @@ export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
   };
 
   call = async (agentName: AgentName, { sentence_with_keywords }: Params) => {
-    ioc.loggerService.logCtx("findPharmaProductByKeywordTool call", { agentName, sentence_with_keywords });
-    const [product = null] = await ioc.productDbService.findByVector(sentence_with_keywords);
-    if (product) {
+    ioc.loggerService.logCtx("listPharmaProductByKeywordTool call", {
+      agentName,
+      sentence_with_keywords,
+    });
+    const products = await ioc.productDbService.findByKeywords(
+      split(sentence_with_keywords)
+    );
+    if (products.length) {
       await ioc.connectionPrivateService.commitToolOutput(
-        `The next pharma product found in database: ${JSON.stringify({ title: product.title, description: product.description })}`,
+        `The next pharma product found in database: ${JSON.stringify(
+          products.map(({ id, title }) => ({ id, title }))
+        )}`,
         agentName
       );
       await ioc.connectionPrivateService.complete([
-        "Tell user the description of product which was found in the previous tool output",
+        "Tell user the titles of products which was found in the previous tool output",
       ]);
       return;
     }
     await ioc.connectionPrivateService.commitToolOutput(
-      `The product does not found in the database`,
+      `The products does not found in the database`,
       agentName
     );
     await ioc.connectionPrivateService.complete([
@@ -53,9 +61,9 @@ export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
     validate: this.validate,
     type: "function",
     function: {
-      name: "find_pharma_product_by_keyword",
+      name: "list_pharma_product_by_keyword",
       description:
-        "Retrieve pharma products from the database based on a keyword search.",
+        "Retrieve several pharma products from the database based on a keyword search.",
       parameters: {
         type: "object",
         properties: {
@@ -71,4 +79,4 @@ export class FindPharmaProductByKeywordTool implements IAgentTool<Params> {
   });
 }
 
-export default FindPharmaProductByKeywordTool;
+export default ListPharmaProductByKeywordTool;

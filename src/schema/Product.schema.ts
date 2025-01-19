@@ -11,6 +11,7 @@ interface IProductInternal {
 interface IProductDto {
   title: string;
   description: string;
+  keywords: string[];
 }
 
 interface IProductRow extends IProductInternal, IProductDto {
@@ -29,6 +30,14 @@ const ProductSchema = new Schema<IProductDocument>({
     validate: {
       validator: (array) => array.every((num) => typeof num === "number"),
       message: "All elements embeddings in the array must be numbers (ProductModel)",
+    },
+    required: true,
+  },
+  keywords: {
+    type: [String],
+    validate: {
+      validator: (array) => array.every((num) => typeof num === "string"),
+      message: "All elements keywords in the array must be string (ProductModel)",
     },
     required: true,
   },

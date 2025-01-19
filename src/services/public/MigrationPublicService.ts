@@ -25,16 +25,18 @@ export class MigrationPublicService implements TMigrationPrivateService {
     });
   };
 
-  public createProduct = async (title: string, description: string) => {
+  public createProduct = async (title: string, description: string, keywords: string[]) => {
     this.loggerService.log(`migrationPublicService createProduct`, {
       title,
       description,
+      keywords,
     });
     return await ContextService.runInContext(
       async () => {
         return await this.migrationPrivateService.createProduct(
           title,
-          description
+          description,
+          keywords,
         );
       },
       {
@@ -43,13 +45,13 @@ export class MigrationPublicService implements TMigrationPrivateService {
     );
   };
 
-  public findProduct = async (search: string) => {
+  public findProductByDescription = async (search: string) => {
     this.loggerService.log(`migrationPublicService findProduct`, {
       search,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.migrationPrivateService.findProduct(search);
+        return await this.migrationPrivateService.findProductByDescription(search);
       },
       {
         clientId: "migration-service",

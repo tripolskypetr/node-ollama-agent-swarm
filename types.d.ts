@@ -262,7 +262,8 @@ declare class ProductDbService extends ProductDbService_base {
     create: (dto: IProductDto$1) => Promise<IProductRow$1>;
     update: (id: string, dto: IProductDto$1) => Promise<any>;
     remove: (id: string) => Promise<IProductRow$1>;
-    findByVector: (search: string) => Promise<IProductRow$1[]>;
+    findByDescription: (search: string) => Promise<IProductRow$1[]>;
+    findByKeywords: (keywords: string[]) => Promise<IProductRow$1[]>;
     findAll: (filterData?: Partial<IProductFilterData>) => Promise<IProductRow$1[]>;
     findByFilter: (filterData: Partial<IProductFilterData>) => Promise<IProductRow$1 | null>;
     findById: (id: string) => Promise<IProductRow$1>;
@@ -284,6 +285,7 @@ interface IProductInternal {
 interface IProductDto {
     title: string;
     description: string;
+    keywords: string[];
 }
 interface IProductRow extends IProductInternal, IProductDto {
     id: string;
@@ -292,9 +294,9 @@ interface IProductRow extends IProductInternal, IProductDto {
 declare class MigrationPrivateService {
     private readonly loggerService;
     private readonly productDbService;
-    createProduct: (title: string, description: string) => Promise<IProductRow>;
+    createProduct: (title: string, description: string, keywords: string[]) => Promise<IProductRow>;
     listProduct: () => Promise<IProductRow[]>;
-    findProduct: (search: string) => Promise<IProductRow[]>;
+    findProductByDescription: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
 }
 
@@ -307,8 +309,8 @@ declare class MigrationPublicService implements TMigrationPrivateService {
     readonly loggerService: LoggerService;
     readonly migrationPrivateService: MigrationPrivateService;
     listProduct: () => Promise<IProductRow[]>;
-    createProduct: (title: string, description: string) => Promise<IProductRow>;
-    findProduct: (search: string) => Promise<IProductRow[]>;
+    createProduct: (title: string, description: string, keywords: string[]) => Promise<IProductRow>;
+    findProductByDescription: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
 }
 
@@ -432,21 +434,7 @@ declare class NavigationRegistryService {
 declare class PharmaProductRegistryService {
     readonly loggerService: LoggerService;
     private registry;
-    useListPharmaProduct: () => {
-        implementation: (agentName: AgentName) => Promise<void>;
-        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
-        type: string;
-        function: {
-            name: string;
-            description: string;
-            parameters: {
-                type: string;
-                properties: {};
-                required: any[];
-            };
-        };
-    };
-    useFindPharmaProductByKeyword: () => {
+    useListPharmaProductByKeywordTool: () => {
         implementation: (agentName: AgentName, { sentence_with_keywords }: {
             sentence_with_keywords?: string;
         }) => Promise<void>;
@@ -459,6 +447,27 @@ declare class PharmaProductRegistryService {
                 type: string;
                 properties: {
                     sentence_with_keywords: {
+                        type: string;
+                        description: string;
+                    };
+                };
+                required: string[];
+            };
+        };
+    };
+    useListPharmaProductByDescriptionTool: () => {
+        implementation: (agentName: AgentName, { description }: {
+            description?: string;
+        }) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {
+                    description: {
                         type: string;
                         description: string;
                     };

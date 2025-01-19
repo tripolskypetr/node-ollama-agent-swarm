@@ -10,14 +10,16 @@ export class MigrationPrivateService {
     TYPES.productDbService
   );
 
-  public createProduct = async (title: string, description: string) => {
+  public createProduct = async (title: string, description: string, keywords: string[]) => {
     this.loggerService.logCtx("migrationPrivateService createProduct", {
       title,
       description,
+      keywords,
     });
     return await this.productDbService.create({
       title,
       description,
+      keywords,
     });
   };
 
@@ -26,11 +28,11 @@ export class MigrationPrivateService {
     return await this.productDbService.findAll();
   };
 
-  public findProduct = async (search: string) => {
-    this.loggerService.logCtx("migrationPrivateService findProduct", {
+  public findProductByDescription = async (search: string) => {
+    this.loggerService.logCtx("migrationPrivateService findProductByDescription", {
       search,
     });
-    return await this.productDbService.findByVector(search);
+    return await this.productDbService.findByDescription(search);
   };
 
   public importProducts = async (path: string) => {
@@ -38,14 +40,15 @@ export class MigrationPrivateService {
       path,
     });
     const text = await fs.readFile(path);
-    const products = <{ title: string; description: string }[]>(
+    const products = <{ title: string; description: string; keywords: string[] }[]>(
       JSON.parse(text.toString())
     );
-    for (const { title, description } of products) {
+    for (const { title, description, keywords } of products) {
       console.log(`Creating ${title}`);
       await this.productDbService.create({
         title,
         description,
+        keywords,
       });
     }
   };

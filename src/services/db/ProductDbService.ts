@@ -45,8 +45,8 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     return await super.remove(id);
   };
 
-  public findByVector = async (search: string): Promise<IProductRow[]> => {
-    this.loggerService.logCtx(`productDbService findByVector`, { search });
+  public findByDescription = async (search: string): Promise<IProductRow[]> => {
+    this.loggerService.logCtx(`productDbService findByDescription`, { search });
     const embeddings = await this.embeddingService.createEmbedding(search);
     const iter = pickDocuments<IProductRow>(CC_VECTOR_SEARCH_LIMIT, 0);
     for await (const row of this.iterate()) {
@@ -56,6 +56,19 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
           embeddings
         )
       ) {
+        iter([row]);
+      }
+    }
+    return iter().rows;
+  };
+
+  public findByKeywords = async (
+    keywords: string[]
+  ): Promise<IProductRow[]> => {
+    this.loggerService.logCtx(`productDbService findByKeywords`, { keywords });
+    const iter = pickDocuments<IProductRow>(CC_VECTOR_SEARCH_LIMIT, 0);
+    for await (const row of this.iterate()) {
+      if (keywords.some((keyword) => row.keywords.includes(keyword))) {
         iter([row]);
       }
     }

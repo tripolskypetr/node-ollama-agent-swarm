@@ -11,6 +11,11 @@ const AGENT_PROMPT = `You are a sales agent that handles all actions related to 
 If user do not to buy navigate him back to triage agent
 Tell the users all details about products in the database by using necessary tool calls
 When promoting product list choose diffrent products for promotion from message to message
+Search the required products by using keywords if you got not enough information to form the fulltext description
+Guess the keywords from user message
+Do not ask keywords directly
+If user do not provided keywords imagine them
+Use the description search only if you have not found result by keyword search
 `;
 
 export class SalesAgentService implements IAgent {
@@ -29,8 +34,8 @@ export class SalesAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
-          this.pharmaProductRegistryService.useListPharmaProduct(),
-          this.pharmaProductRegistryService.useFindPharmaProductByKeyword(),
+          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
+          this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
         ]
       })
   );

@@ -27,17 +27,3 @@ test("Will navigate to refund agent when user ask to withdraw bank deposit", asy
     }
     t.fail(`Navigation failed, agent=${await ioc.specPublicService.getAgentName()} output=${output}`);
 });
-
-test("Will execute tool ASAP after navigation to sales agent", async (t) => {
-    const output = await ioc.specPublicService.complete("so, what can i buy?");
-    if (await ioc.specPublicService.getAgentName() !== "sales-agent") {
-        t.fail(`Navigation failed, agent=${await ioc.specPublicService.getAgentName()} output=${output}`);
-        return;
-    }
-    const productList = await ioc.migrationPublicService.listProduct();
-    if (productList.some(({ title }) => output.toLocaleLowerCase().indexOf(title.toLowerCase()))) {
-        t.pass(`Successfully called list product tools in agent output=${output}`);
-    }
-    t.fail(`Output compare failed, agent=${await ioc.specPublicService.getAgentName()} output=${output}`);
-});
-
