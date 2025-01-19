@@ -52,7 +52,7 @@ export class SpecPublicService implements TSpecPrivateService {
   };
 
   public compareStrings = async (a: string, b: string) => {
-    this.loggerService.logCtx("specPrivateService compareStrings", { a, b });
+    this.loggerService.log("specPrivateService compareStrings", { a, b });
     return await ContextService.runInContext(async () => {
       return await this.specPrivateService.compareStrings(a, b);
     }, TESTBED_CONTEXT);

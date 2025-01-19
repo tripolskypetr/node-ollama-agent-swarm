@@ -46,7 +46,7 @@ export class EmbeddingService {
       const normB = norm(tensorB);
       const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
       const cosineSimilarity = cosineData[0];
-      this.loggerService.debugCtx(
+      this.loggerService.logCtx(
         `embeddingService compareEmbeddings result`,
         { cosineSimilarity }
       );

@@ -21,6 +21,11 @@ export class MigrationPrivateService {
     });
   };
 
+  public listProduct = async () => {
+    this.loggerService.logCtx("migrationPrivateService listProduct");
+    return await this.productDbService.findAll();
+  };
+
   public findProduct = async (search: string) => {
     this.loggerService.logCtx("migrationPrivateService findProduct", {
       search,

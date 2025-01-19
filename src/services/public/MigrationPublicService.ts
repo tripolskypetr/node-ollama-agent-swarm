@@ -16,6 +16,15 @@ export class MigrationPublicService implements TMigrationPrivateService {
     TYPES.migrationPrivateService
   );
 
+  public listProduct = async () => {
+    this.loggerService.log(`migrationPublicService listProduct`);
+    return await ContextService.runInContext(async () => {
+      return await this.migrationPrivateService.listProduct();
+    }, {
+      clientId: "migration-service",
+    });
+  };
+
   public createProduct = async (title: string, description: string) => {
     this.loggerService.log(`migrationPublicService createProduct`, {
       title,

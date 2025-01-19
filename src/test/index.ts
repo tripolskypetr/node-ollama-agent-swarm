@@ -7,6 +7,6 @@ import "./spec/navigation_registry.test";
 if (CC_EXECUTE_TEST) {
     run(import.meta.url, () => {
         console.log("All tests finished");
-        process.exit(-1);
+        setTimeout(() => process.exit(-1), 5_000);
     });
 }

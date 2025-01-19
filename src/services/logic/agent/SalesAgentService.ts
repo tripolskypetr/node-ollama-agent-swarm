@@ -7,7 +7,7 @@ import LoggerService from "src/services/base/LoggerService";
 import NavigationRegistryService from "src/services/function/NavigationRegistryService";
 import PharmaProductRegistryService from "src/services/function/PharmaProductRegistryService";
 
-const AGENT_PROMPT = `You are a sales agent that handles all actions related to placing an order to purchase an item.
+const AGENT_PROMPT = `You are a sales agent that handles all actions related to placing the order to purchase an item.
 If user do not to buy navigate him back to triage agent
 Tell the users all details about products in the database by using necessary tool calls
 When promoting product list choose diffrent products for promotion from message to message

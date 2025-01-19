@@ -292,6 +292,7 @@ declare class MigrationPrivateService {
     private readonly loggerService;
     private readonly productDbService;
     createProduct: (title: string, description: string) => Promise<IProductRow>;
+    listProduct: () => Promise<IProductRow[]>;
     findProduct: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
 }
@@ -304,6 +305,7 @@ type TMigrationPrivateService = {
 declare class MigrationPublicService implements TMigrationPrivateService {
     readonly loggerService: LoggerService;
     readonly migrationPrivateService: MigrationPrivateService;
+    listProduct: () => Promise<IProductRow[]>;
     createProduct: (title: string, description: string) => Promise<IProductRow>;
     findProduct: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
