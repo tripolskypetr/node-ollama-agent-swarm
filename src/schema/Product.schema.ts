@@ -18,7 +18,9 @@ interface IProductRow extends IProductInternal, IProductDto {
   id: string;
 }
 
-interface IProductFilterData extends IProductDto {}
+interface IProductFilterData extends IProductDto {
+  _id: string;
+}
 
 const ProductSchema = new Schema<IProductDocument>({
   title: { type: String, required: true },

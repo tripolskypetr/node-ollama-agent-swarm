@@ -455,6 +455,27 @@ declare class PharmaProductRegistryService {
             };
         };
     };
+    useFindPharmaProductDetailsByIdTool: () => {
+        implementation: (agentName: AgentName, { product_id }: {
+            product_id?: string;
+        }) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {
+                    product_id: {
+                        type: string;
+                        description: string;
+                    };
+                };
+                required: string[];
+            };
+        };
+    };
     protected init: () => void;
 }
 

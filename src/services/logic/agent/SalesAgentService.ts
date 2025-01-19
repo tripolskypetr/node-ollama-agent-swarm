@@ -16,7 +16,7 @@ Guess the keywords from user message
 Do not ask keywords directly
 If user do not provided keywords imagine them
 Use the description search only if you have not found result by keyword search
-Do not send any JSON to the user. Format it as plain text
+Do not send any JSON to the user. Format it as plain text. Do not share any internal details like ids, format text human readable
 `;
 
 export class SalesAgentService implements IAgent {
@@ -36,6 +36,7 @@ export class SalesAgentService implements IAgent {
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
           this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
+          this.pharmaProductRegistryService.useFindPharmaProductDetailsByIdTool(),
         ]
       })
   );
