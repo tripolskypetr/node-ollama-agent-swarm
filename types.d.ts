@@ -476,6 +476,27 @@ declare class PharmaProductRegistryService {
             };
         };
     };
+    useListPharmaProductByDescriptionTool: () => {
+        implementation: (agentName: AgentName, { description }: {
+            description?: string;
+        }) => Promise<void>;
+        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
+        type: string;
+        function: {
+            name: string;
+            description: string;
+            parameters: {
+                type: string;
+                properties: {
+                    description: {
+                        type: string;
+                        description: string;
+                    };
+                };
+                required: string[];
+            };
+        };
+    };
     protected init: () => void;
 }
 

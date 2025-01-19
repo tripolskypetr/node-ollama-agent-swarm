@@ -30,7 +30,7 @@ export class RefundsAgentService implements IAgent {
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
           this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
-          this.pharmaProductRegistryService.useFindPharmaProductDetailsByIdTool(),
+          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
         ]
       })
   );
