@@ -3,6 +3,7 @@ import { AgentName } from "src/utils/getAgentMap";
 import { z } from "zod";
 import { ioc } from "src/services";
 import { str } from "functools-kit";
+import serializeProduct from "src/utils/serializeProduct";
 
 const PARAMETER_SCHEMA = z
   .object({
@@ -35,9 +36,7 @@ export class ListPharmaProductByDescriptionTool implements IAgentTool<Params> {
     const products = await ioc.productDbService.findByDescription(description);
     if (products.length) {
       await ioc.connectionPrivateService.commitToolOutput(
-        `The next pharma product found in database: ${JSON.stringify(
-          products.map(({ id, title }) => ({ id, title }))
-        )}`,
+        `The next pharma product found in database: ${products.map(serializeProduct)}`,
         agentName
       );
       await ioc.connectionPrivateService.complete([

@@ -16,6 +16,7 @@ Guess the keywords from user message
 Do not ask keywords directly
 If user do not provided keywords imagine them
 Use the description search only if you have not found result by keyword search
+Do not send any JSON to the user. Format it as plain text
 `;
 
 export class SalesAgentService implements IAgent {
@@ -34,7 +35,6 @@ export class SalesAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
-          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
           this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
         ]
       })

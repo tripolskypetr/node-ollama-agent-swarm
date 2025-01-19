@@ -6,7 +6,10 @@ import { AgentName } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
 import BaseList from "src/common/BaseList";
 import { IModelMessage } from "src/model/ModelMessage.model";
-import { CC_CLIENT_SESSION_EXPIRE_SECONDS } from "src/config/params";
+import {
+  CC_CLIENT_SESSION_EXPIRE_SECONDS,
+  CC_OLLAMA_MESSAGES,
+} from "src/config/params";
 
 interface IHistoryParams {
   agentName: AgentName;
@@ -103,7 +106,11 @@ export class ClientHistory implements IHistory {
         result.push(message);
       }
     }
-    return result;
+    const systemMessages = result.filter(({ role }) => role === "system");
+    const commonMessages = result
+      .filter(({ role }) => role !== "system")
+      .slice(-CC_OLLAMA_MESSAGES);
+    return [...systemMessages, ...commonMessages];
   };
 
   dispose = async () => {

@@ -10,13 +10,9 @@ export class PharmaProductRegistryService {
 
   private registry = new ToolRegistry("pharmaProductRegistryService")
     .register("list_pharma_product_by_keyword", new ListPharmaProductByKeywordTool())
-    .register("list_pharma_product_by_description", new ListPharmaProductByDescriptionTool())
 
   public useListPharmaProductByKeywordTool = () =>
     this.registry.get("list_pharma_product_by_keyword").getToolSignature();
-
-  public useListPharmaProductByDescriptionTool = () =>
-    this.registry.get("list_pharma_product_by_description").getToolSignature();
 
   protected init = () => {
     this.registry.init();

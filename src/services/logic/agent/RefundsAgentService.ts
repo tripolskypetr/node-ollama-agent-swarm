@@ -29,7 +29,6 @@ export class RefundsAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
-          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
           this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
         ]
       })
