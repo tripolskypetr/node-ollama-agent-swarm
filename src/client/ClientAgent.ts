@@ -123,7 +123,6 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} _resurrectModel`
     );
     {
-      await this.clientHistoryDbService.clear(this.params.agentName);
       await this.clientHistoryDbService.push(this.params.agentName, {
         role: 'resque',
         agentName: this.params.agentName,

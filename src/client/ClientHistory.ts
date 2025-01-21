@@ -131,7 +131,8 @@ export class ClientHistory implements IHistory {
       const message: IModelMessage = content;
       let isOk = true;
       if (message.role === "resque") {
-        isOk = false;
+        result.splice(0, result.length);
+        continue;
       }
       if (message.role === "system") {
         isOk = isOk && message.agentName === this.params.agentName;
