@@ -262,6 +262,7 @@ declare class ProductDbService extends ProductDbService_base {
         readonly context: IContext;
     };
     readonly embeddingService: EmbeddingService;
+    private getEmbedding;
     create: (dto: IProductDto$1) => Promise<IProductRow$1>;
     update: (id: string, dto: IProductDto$1) => Promise<any>;
     remove: (id: string) => Promise<IProductRow$1>;
@@ -277,6 +278,7 @@ declare class ProductDbService extends ProductDbService_base {
         rows: any[];
         total: number;
     }>;
+    protected init: (() => Promise<void>) & functools_kit.ISingleshotClearable;
 }
 
 interface IProductInternal {

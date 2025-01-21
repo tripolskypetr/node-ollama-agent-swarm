@@ -6,7 +6,7 @@ import {
   IProductRow,
   ProductModel,
 } from "src/schema/Product.schema";
-import { SortedArray } from "functools-kit";
+import { memoize, singleshot, SortedArray } from "functools-kit";
 import LoggerService from "../base/LoggerService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
@@ -18,6 +18,23 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
   readonly contextService = inject<TContextService>(TYPES.contextService);
   readonly embeddingService = inject<EmbeddingService>(TYPES.embeddingService);
+
+  private getEmbedding = memoize(([{ id }]) => id, async (row: IProductRow) => {
+    const descriptionEmbeddings = await this.embeddingService.createEmbedding(
+      row.description,
+    );
+    const keywordsEmbeddings = await this.embeddingService.createEmbedding(
+      row.keywords.join(" "),
+    );
+    const titleEmbeddings = await this.embeddingService.createEmbedding(
+      row.title,
+    );
+    return {
+      descriptionEmbeddings,
+      keywordsEmbeddings,
+      titleEmbeddings,
+    };
+  });
 
   public create = async (dto: IProductDto): Promise<IProductRow> => {
     this.loggerService.logCtx(`productDbService create`, { dto });
@@ -44,15 +61,11 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     const embeddings = await this.embeddingService.createEmbedding(search);
     const items = new SortedArray();
     for await (const row of this.iterate()) {
-      const descriptionEmbeddings = await this.embeddingService.createEmbedding(
-        row.description,
-      );
-      const keywordsEmbeddings = await this.embeddingService.createEmbedding(
-        row.keywords.join(" "),
-      );
-      const titleEmbeddings = await this.embeddingService.createEmbedding(
-        row.title,
-      );
+      const {
+        titleEmbeddings,
+        descriptionEmbeddings,
+        keywordsEmbeddings,
+      } = await this.getEmbedding(row);
       const rowScores = await Promise.all([
         this.embeddingService.calculateEmbeddings(
           titleEmbeddings,
@@ -124,6 +137,22 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     }
     return await super.paginate(query, pagination);
   };
+
+  protected init = singleshot(async () => {
+    this.loggerService.log(`productDbService init`);
+
+    const prefetch = async () => {
+      for await (const row of this.iterate()) {
+        this.getEmbedding(row);
+      }  
+    };
+
+    await ContextService.runInContext(async () => {
+      await prefetch();
+    }, {
+      clientId: "productDbService-prefetch",
+    })
+  });
 }
 
 export default ProductDbService;
