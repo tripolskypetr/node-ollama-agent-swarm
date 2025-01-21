@@ -34,11 +34,6 @@ export class SpecPrivateService {
         return await this.connectionPrivateService.complete([msg]);
     };
 
-    public compareStrings = async (a: string, b: string) => {
-        this.loggerService.logCtx('specPrivateService compareStrings', { a, b });
-        return await this.embeddingService.compareStrings(a, b);
-    };
-
 }
 
 export default SpecPrivateService;

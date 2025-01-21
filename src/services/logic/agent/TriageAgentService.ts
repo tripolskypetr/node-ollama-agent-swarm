@@ -13,6 +13,7 @@ Act like a real person
 Navigate to the agent without asking additional details
 If the speech is about agent, navigate immediately
 If you can't be sure which agent you should navigate to, ask the direct question
+If you can't understand if user want to buy or return, navigate to the sales agent
 `;
 
 export class TriageAgentService implements IAgent {
@@ -34,6 +35,12 @@ export class TriageAgentService implements IAgent {
         ],
       })
   );
+
+  public waitForOutput = async () => {
+    this.loggerService.logCtx("triageAgentService waitForOutput");
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.waitForOutput();
+  };
 
   public execute = async (input: string[]) => {
     this.loggerService.logCtx("triageAgentService execute", {

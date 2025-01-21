@@ -43,4 +43,4 @@ const main = () => {
 
 main();
 
-ioc.loggerService.setDebug(!CC_EXECUTE_TEST);
+ioc.loggerService.setDebug(false);

@@ -50,13 +50,6 @@ export class SpecPublicService implements TSpecPrivateService {
       return await this.specPrivateService.setAgent(agentName);
     }, TESTBED_CONTEXT);
   };
-
-  public compareStrings = async (a: string, b: string) => {
-    this.loggerService.log("specPrivateService compareStrings", { a, b });
-    return await ContextService.runInContext(async () => {
-      return await this.specPrivateService.compareStrings(a, b);
-    }, TESTBED_CONTEXT);
-  };
 }
 
 export default SpecPublicService;

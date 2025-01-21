@@ -3,7 +3,6 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IProductDocument extends IProductDto, IProductInternal, Document {}
 
 interface IProductInternal {
-  embeddings: number[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -27,14 +26,6 @@ const ProductSchema = new Schema<IProductDocument>({
   description: { type: String, required: true },
   createdAt: { type: Date, required: true },
   updatedAt: { type: Date, required: true },
-  embeddings: {
-    type: [Number],
-    validate: {
-      validator: (array) => array.every((num) => typeof num === "number"),
-      message: "All elements embeddings in the array must be numbers (ProductModel)",
-    },
-    required: true,
-  },
   keywords: {
     type: [String],
     validate: {

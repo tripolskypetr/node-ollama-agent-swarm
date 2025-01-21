@@ -56,6 +56,7 @@ declare class RefundsAgentService implements IAgent {
     readonly navigationRegistryService: NavigationRegistryService$1;
     readonly pharmaProductRegistryService: PharmaProductRegistryService$1;
     private getClientAgent;
+    waitForOutput: () => Promise<string>;
     commitSystemMessage: (message: string) => Promise<void>;
     commitToolOutput: (content: string) => Promise<void>;
     execute: (input: string[]) => Promise<void>;
@@ -71,6 +72,7 @@ declare class SalesAgentService implements IAgent {
     readonly navigationRegistryService: NavigationRegistryService$1;
     readonly pharmaProductRegistryService: PharmaProductRegistryService$1;
     private getClientAgent;
+    waitForOutput: () => Promise<string>;
     execute: (input: string[]) => Promise<void>;
     beginChat: () => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
@@ -85,6 +87,7 @@ declare class TriageAgentService implements IAgent {
     readonly loggerService: LoggerService$1;
     readonly navigationRegistryService: NavigationRegistryService$1;
     private getClientAgent;
+    waitForOutput: () => Promise<string>;
     execute: (input: string[]) => Promise<void>;
     beginChat: () => Promise<void>;
     commitSystemMessage: (message: string) => Promise<void>;
@@ -142,8 +145,8 @@ type Embeddings = number[];
 declare class EmbeddingService {
     readonly loggerService: LoggerService;
     createEmbedding: (text: string) => Promise<Embeddings>;
-    compareEmbeddings: (a: Embeddings, b: Embeddings) => Promise<boolean>;
-    compareStrings: (t1: string, t2: string) => Promise<boolean>;
+    calculateEmbeddings: (a: Embeddings, b: Embeddings) => Promise<number>;
+    compareStrings: (t1: string, t2: string) => Promise<number>;
 }
 
 declare class CompletionService {
@@ -262,8 +265,7 @@ declare class ProductDbService extends ProductDbService_base {
     create: (dto: IProductDto$1) => Promise<IProductRow$1>;
     update: (id: string, dto: IProductDto$1) => Promise<any>;
     remove: (id: string) => Promise<IProductRow$1>;
-    findByDescription: (search: string) => Promise<IProductRow$1[]>;
-    findByKeywords: (keywords: string[]) => Promise<IProductRow$1[]>;
+    findByFulltext: (search: string) => Promise<IProductRow$1[]>;
     findAll: (filterData?: Partial<IProductFilterData>) => Promise<IProductRow$1[]>;
     findByFilter: (filterData: Partial<IProductFilterData>) => Promise<IProductRow$1 | null>;
     findById: (id: string) => Promise<IProductRow$1>;
@@ -278,7 +280,6 @@ declare class ProductDbService extends ProductDbService_base {
 }
 
 interface IProductInternal {
-    embeddings: number[];
     createdAt: Date;
     updatedAt: Date;
 }
@@ -296,7 +297,7 @@ declare class MigrationPrivateService {
     private readonly productDbService;
     createProduct: (title: string, description: string, keywords: string[]) => Promise<IProductRow>;
     listProduct: () => Promise<IProductRow[]>;
-    findProductByDescription: (search: string) => Promise<IProductRow[]>;
+    findByFulltext: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
 }
 
@@ -310,7 +311,7 @@ declare class MigrationPublicService implements TMigrationPrivateService {
     readonly migrationPrivateService: MigrationPrivateService;
     listProduct: () => Promise<IProductRow[]>;
     createProduct: (title: string, description: string, keywords: string[]) => Promise<IProductRow>;
-    findProductByDescription: (search: string) => Promise<IProductRow[]>;
+    findByFulltext: (search: string) => Promise<IProductRow[]>;
     importProducts: (path: string) => Promise<void>;
 }
 
@@ -358,7 +359,6 @@ declare class SpecPrivateService {
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
     setAgent: (agentName: AgentName$1) => Promise<void>;
     complete: (msg: string) => Promise<string>;
-    compareStrings: (a: string, b: string) => Promise<boolean>;
 }
 
 interface ISpecPrivateService extends SpecPrivateService {
@@ -373,7 +373,6 @@ declare class SpecPublicService implements TSpecPrivateService {
     getAgentName: () => Promise<"refunds-agent" | "sales-agent" | "triage-agent">;
     getAgent: () => Promise<RefundsAgentService | SalesAgentService | TriageAgentService>;
     setAgent: (agentName: AgentName$1) => Promise<void>;
-    compareStrings: (a: string, b: string) => Promise<boolean>;
 }
 
 declare const getAgentMap: (() => {
@@ -434,49 +433,7 @@ declare class NavigationRegistryService {
 declare class PharmaProductRegistryService {
     readonly loggerService: LoggerService;
     private registry;
-    useListPharmaProductByKeywordTool: () => {
-        implementation: (agentName: AgentName, { sentence_with_keywords }: {
-            sentence_with_keywords?: string;
-        }) => Promise<void>;
-        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
-        type: string;
-        function: {
-            name: string;
-            description: string;
-            parameters: {
-                type: string;
-                properties: {
-                    sentence_with_keywords: {
-                        type: string;
-                        description: string;
-                    };
-                };
-                required: string[];
-            };
-        };
-    };
-    useFindPharmaProductDetailsByIdTool: () => {
-        implementation: (agentName: AgentName, { product_id }: {
-            product_id?: string;
-        }) => Promise<void>;
-        validate: (agentName: AgentName, params: Record<string, unknown>) => Promise<boolean>;
-        type: string;
-        function: {
-            name: string;
-            description: string;
-            parameters: {
-                type: string;
-                properties: {
-                    product_id: {
-                        type: string;
-                        description: string;
-                    };
-                };
-                required: string[];
-            };
-        };
-    };
-    useListPharmaProductByDescriptionTool: () => {
+    useSearchPharmaProductTool: () => {
         implementation: (agentName: AgentName, { description }: {
             description?: string;
         }) => Promise<void>;

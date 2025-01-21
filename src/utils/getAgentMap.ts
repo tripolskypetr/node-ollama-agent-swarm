@@ -16,6 +16,8 @@ export const getAgent = (agentName: AgentName) => {
     return agentMap[agentName];
 };
 
+export const getAgentList = () => Object.values(getAgentMap());
+
 export type AgentName = keyof ReturnType<typeof getAgentMap>;
 
 export type Agent = ReturnType<typeof getAgentMap>[AgentName];

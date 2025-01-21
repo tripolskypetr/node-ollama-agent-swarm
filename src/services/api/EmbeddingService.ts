@@ -4,7 +4,7 @@ import { inject } from "src/core/di";
 import { tidy, mul, norm, sum, tensor1d, div } from "@tensorflow/tfjs-core";
 import LoggerService from "../base/LoggerService";
 import TYPES from "src/config/types";
-import { CC_EMBEDDING_SIMILARITY_COEF, CC_GPT4ALL_EMBEDDER_ENABLE, CC_OLLAMA_EMBEDDER_MODEL, CC_OLLAMA_HOST } from "src/config/params";
+import { CC_GPT4ALL_EMBEDDER_ENABLE, CC_OLLAMA_EMBEDDER_MODEL, CC_OLLAMA_HOST } from "src/config/params";
 import { Ollama } from "ollama";
 
 const getNomicEmbedder = singleshot(
@@ -36,8 +36,8 @@ export class EmbeddingService {
     return embedding;
   };
 
-  public compareEmbeddings = async (a: Embeddings, b: Embeddings) => {
-    this.loggerService.logCtx("embeddingService compareEmbeddings");
+  public calculateEmbeddings = async (a: Embeddings, b: Embeddings) => {
+    this.loggerService.logCtx("embeddingService calculateEmbeddings");
     return tidy(() => {
       const tensorA = tensor1d(a);
       const tensorB = tensor1d(b);
@@ -46,11 +46,8 @@ export class EmbeddingService {
       const normB = norm(tensorB);
       const cosineData = div(dotProduct, mul(normA, normB)).dataSync();
       const cosineSimilarity = cosineData[0];
-      this.loggerService.logCtx(
-        `embeddingService compareEmbeddings result`,
-        { cosineSimilarity }
-      );
-      return cosineSimilarity >= CC_EMBEDDING_SIMILARITY_COEF;
+      this.loggerService.logCtx("embeddingService calculateEmbeddings result", { cosineSimilarity });
+      return cosineSimilarity;
     });
   };
 
@@ -63,7 +60,7 @@ export class EmbeddingService {
       this.createEmbedding(t1),
       this.createEmbedding(t2),
     ]);
-    return await this.compareEmbeddings(
+    return await this.calculateEmbeddings(
       e1,
       e2,
     );

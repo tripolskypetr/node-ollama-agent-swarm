@@ -57,3 +57,11 @@ The entry point of the backend application is [ConnectionPublicService.ts](src/s
  - **Integrated environment**
 
     Includes a lot of dev tools like TTS synthesis and speech recognition (`npm start`), REPL javascript interpretation (`npm run start:repl`), REST API, WS API, console chat interface (`npm run start:console`), test-driven development (`npm run test`)
+
+ - **Tools logging**
+
+    Better logging will help you to troubleshoot when the model called not that function or invalid function
+
+ - **Realtime Agents**
+
+    Build exactly for websocket chat sessions with [multiple client instances](https://github.com/openai/openai-realtime-agents) connected to the one backend

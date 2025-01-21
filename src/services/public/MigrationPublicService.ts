@@ -45,13 +45,13 @@ export class MigrationPublicService implements TMigrationPrivateService {
     );
   };
 
-  public findProductByDescription = async (search: string) => {
-    this.loggerService.log(`migrationPublicService findProduct`, {
+  public findByFulltext = async (search: string) => {
+    this.loggerService.log(`migrationPublicService findByFulltext`, {
       search,
     });
     return await ContextService.runInContext(
       async () => {
-        return await this.migrationPrivateService.findProductByDescription(search);
+        return await this.migrationPrivateService.findByFulltext(search);
       },
       {
         clientId: "migration-service",

@@ -19,10 +19,9 @@ export const CC_REDIS_HOST = process.env.CC_REDIS_HOST || "127.0.0.1";
 export const CC_REDIS_PORT = parseInt(process.env.CC_REDIS_PORT) || 6379;
 export const CC_REDIS_PASSWORD = process.env.CC_REDIS_PASSWORD || "";
 
-export const CC_EMBEDDING_SIMILARITY_COEF = parseFloat(process.env.CC_EMBEDDING_SIMILARITY_COEF) || 0.7;
-
 export const CC_CLIENT_SESSION_EXPIRE_SECONDS = 7 * 24 * 60 * 60; // 1 week
 
 export const CC_VECTOR_SEARCH_LIMIT = parseInt(process.env.CC_VECTOR_SEARCH_LIMIT) || 5;
+export const CC_VECTOR_SEARCH_SIMILARITY = parseFloat(process.env.CC_VECTOR_SEARCH_SIMILARITY) || 0.7;
 
 export const CC_REDIS_FLUSHALL = !!process.env.CC_REDIS_FLUSHALL || false;

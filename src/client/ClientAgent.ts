@@ -50,6 +50,7 @@ interface IAgentParams {
 export interface IAgent {
   execute: (input: string[]) => Promise<void>;
   beginChat: () => Promise<void>;
+  waitForOutput: () => Promise<string>;
   commitToolOutput(content: string): Promise<void>;
   commitSystemMessage(message: string): Promise<void>;
 }
@@ -95,6 +96,7 @@ export class ClientAgent implements IAgent {
   );
 
   readonly _toolCommitSubject = new Subject<void>();
+  readonly _outputSubject = new Subject<string>();
 
   constructor(readonly params: IAgentParams) {}
 
@@ -108,9 +110,11 @@ export class ClientAgent implements IAgent {
         throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed`);
       }
       await this.connectionPrivateService.emit(result, this.params.agentName);
+      this._outputSubject.next(result);
       return;
     }
     await this.connectionPrivateService.emit(result, this.params.agentName);
+    this._outputSubject.next(result);
     return;
   }
 
@@ -141,6 +145,13 @@ export class ClientAgent implements IAgent {
       agentName: this.params.agentName,
     });
     return result;
+  };
+
+  waitForOutput = async () => {
+    this.loggerService.debugCtx(
+      `ClientAgent agentName=${this.params.agentName} waitForOutput`
+    );
+    return await this._outputSubject.toPromise();
   };
 
   getCompletion = async (): Promise<{ message: Message }> => {
@@ -227,40 +238,45 @@ export class ClientAgent implements IAgent {
           role: response.message.role as IModelMessage["role"],
           agentName: this.params.agentName,
         });
-        if (
-          targetFn &&
-          (await targetFn.validate(
-            this.params.agentName,
-            tool.function.arguments
-          ))
-        ) {
-          /**
-           * @description Do not await to await deadlock! The tool can send the message to the agent by emulating user messages
-           */
-          targetFn.implementation(
-            this.params.agentName,
-            tool.function.arguments
-          );
+        if (!targetFn) {
           this.loggerService.debugCtx(
-            `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`
+            `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool function not found`
           );
-          await Promise.race([
-            this._toolCommitSubject.toPromise(),
-            this.connectionPrivateService.waitForOutput(),
-          ]);
+          const result = await this._resurrectModel();
           this.loggerService.debugCtx(
-            `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end`
+            `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
           );
+          await this._emitOuput(result);
           return;
         }
-        this.loggerService.debugCtx(
-          `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool function not found`
+        if (await not(targetFn.validate(this.params.agentName, tool.function.arguments))) { 
+          this.loggerService.debugCtx(
+            `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool validation not passed`
+          );
+          const result = await this._resurrectModel();
+          this.loggerService.debugCtx(
+            `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
+          );
+          await this._emitOuput(result);
+          return;
+        }
+        /**
+         * @description Do not await to await deadlock! The tool can send the message to the agent by emulating user messages
+         */
+        targetFn.implementation(
+          this.params.agentName,
+          tool.function.arguments
         );
-        const result = await this._resurrectModel();
         this.loggerService.debugCtx(
-          `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
+          `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call executing`
         );
-        await this._emitOuput(result);
+        await Promise.race([
+          this._toolCommitSubject.toPromise(),
+          this.connectionPrivateService.waitForOutput(),
+        ]);
+        this.loggerService.debugCtx(
+          `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool call end`
+        );
         return;
       }
     }

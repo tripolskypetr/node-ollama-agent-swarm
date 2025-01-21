@@ -8,15 +8,10 @@ import NavigationRegistryService from "src/services/function/NavigationRegistryS
 import PharmaProductRegistryService from "src/services/function/PharmaProductRegistryService";
 
 const AGENT_PROMPT = `You are a sales agent that handles all actions related to placing the order to purchase an item.
-If user do not to buy navigate him back to triage agent
+If user do not want to buy navigate him back to triage agent
 Tell the users all details about products in the database by using necessary tool calls
-When promoting product list choose diffrent products for promotion from message to message
-Search the required products by using keywords if you got not enough information to form the fulltext description
-Guess the keywords from user message
-Do not ask keywords directly
-If user do not provided keywords imagine them
-Use the description search only if you have not found result by keyword search
 Do not send any JSON to the user. Format it as plain text. Do not share any internal details like ids, format text human readable
+If the previous user messages contains product request, tell him details immidiately
 `;
 
 export class SalesAgentService implements IAgent {
@@ -35,11 +30,16 @@ export class SalesAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
-          this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
-          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
+          this.pharmaProductRegistryService.useSearchPharmaProductTool(),
         ]
       })
   );
+
+  public waitForOutput = async () => {
+    this.loggerService.logCtx("salesAgentService waitForOutput");
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.waitForOutput();
+  };
 
   public execute = async (input: string[]) => {
     this.loggerService.logCtx("salesAgentService execute", {

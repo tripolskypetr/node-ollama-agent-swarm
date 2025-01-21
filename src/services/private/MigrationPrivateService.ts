@@ -28,11 +28,11 @@ export class MigrationPrivateService {
     return await this.productDbService.findAll();
   };
 
-  public findProductByDescription = async (search: string) => {
-    this.loggerService.logCtx("migrationPrivateService findProductByDescription", {
+  public findByFulltext = async (search: string) => {
+    this.loggerService.logCtx("migrationPrivateService findByFulltext", {
       search,
     });
-    return await this.productDbService.findByDescription(search);
+    return await this.productDbService.findByFulltext(search);
   };
 
   public importProducts = async (path: string) => {

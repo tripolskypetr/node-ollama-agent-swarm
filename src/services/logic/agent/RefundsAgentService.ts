@@ -29,11 +29,16 @@ export class RefundsAgentService implements IAgent {
         prompt: AGENT_PROMPT,
         tools: [
           this.navigationRegistryService.useNavigateToTriage(),
-          this.pharmaProductRegistryService.useListPharmaProductByKeywordTool(),
-          this.pharmaProductRegistryService.useListPharmaProductByDescriptionTool(),
+          this.pharmaProductRegistryService.useSearchPharmaProductTool(),
         ]
       })
   );
+
+  public waitForOutput = async () => {
+    this.loggerService.logCtx("refundsAgentService waitForOutput");
+    const agent = this.getClientAgent(this.contextService.context.clientId);
+    return await agent.waitForOutput();
+  };
 
   public commitSystemMessage = async (message: string) => {
     this.loggerService.logCtx("refundsAgentService commitSystemMessage", {

@@ -2,7 +2,7 @@ import { Subject } from "functools-kit";
 import TYPES from "src/config/types";
 import { inject } from "src/core/di";
 import LoggerService from "src/services/base/LoggerService";
-import getAgentMap, { AgentName } from "../utils/getAgentMap";
+import getAgentMap, { AgentName, getAgentList } from "../utils/getAgentMap";
 import RootSwarmService from "src/services/logic/RootSwarmService";
 import { IOutgoingMessage, IIncomingMessage } from "src/model/WsMessage.model";
 
@@ -29,6 +29,7 @@ export class BaseConnection {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   readonly outgoingSubject = new Subject<IOutgoingMessage>();
+  readonly outputSubject = new Subject<string>();
 
   constructor(readonly params: IConnectionParams) {}
 
@@ -36,8 +37,9 @@ export class BaseConnection {
     this.loggerService.debugCtx("BaseConnection waitForOutput", {
       connectionName: this.params.connectionName,
     });
-    const { data } = await this.outgoingSubject.toPromise();
-    return data;
+    return await Promise.race(
+      getAgentList().map(async (agent) => await agent.waitForOutput())
+    );
   };
 
   execute = async (message: string[], agentName: AgentName) => {

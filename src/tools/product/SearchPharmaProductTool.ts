@@ -9,18 +9,15 @@ const PARAMETER_SCHEMA = z
   .object({
     description: z
       .string()
-      .min(1, "Keyword is required")
-      .describe(
-        "The keyword to search for in pharma product names or descriptions."
-      ),
+      .min(1, "Fulltext is required")
   })
   .strict();
 
 type Params = z.infer<typeof PARAMETER_SCHEMA>;
 
-export class ListPharmaProductByDescriptionTool implements IAgentTool<Params> {
+export class SearchPharmaProductTool implements IAgentTool<Params> {
   validate = async (agentName: AgentName, params: Record<string, unknown>) => {
-    ioc.loggerService.logCtx("listPharmaProductByDescriptionTool validate", {
+    ioc.loggerService.logCtx("searchPharmaProductTool validate", {
       agentName,
       params,
     });
@@ -29,18 +26,22 @@ export class ListPharmaProductByDescriptionTool implements IAgentTool<Params> {
   };
 
   call = async (agentName: AgentName, { description }: Params) => {
-    ioc.loggerService.logCtx("listPharmaProductByDescriptionTool call", {
+    ioc.loggerService.logCtx("searchPharmaProductTool call", {
       agentName,
       description,
     });
-    const products = await ioc.productDbService.findByDescription(description);
+    const products = await ioc.productDbService.findByFulltext(
+      description,
+    );
     if (products.length) {
       await ioc.connectionPrivateService.commitToolOutput(
-        `The next pharma product found in database: ${products.map(serializeProduct)}`,
+        str.newline(
+          `The next pharma product found in database: ${products.map(serializeProduct)}`,
+        ),
         agentName
       );
       await ioc.connectionPrivateService.complete([
-        "Tell user the titles of product which was found in the previous tool output",
+        "Tell user the products found in the database"
       ]);
       return;
     }
@@ -58,23 +59,16 @@ export class ListPharmaProductByDescriptionTool implements IAgentTool<Params> {
     validate: this.validate,
     type: "function",
     function: {
-      name: "list_pharma_product_by_description",
-      description: str(
-        "Retrieve several pharma products from the database based on a user sentence.",
-        "The sentence must require at lead 512 characters.",
-        "DO NOT CALL THE TOOL IF YOU CAN'T FORMAT THE DESCRIPTION CONTENT AND LENGTH",
-        "IF DESCRIPTION TOO SHORT USE KEYWORD SEARCH",
-        "BETTER USE KEYWORD SEARCH"
-      ),
+      name: "search_pharma_product",
+      description:
+        "Retrieve several pharma products from the database based on description",
       parameters: {
         type: "object",
         properties: {
           description: {
             type: "string",
-            description: str(
-              "The description of a product. At least 128 characters are required. Write them from user request,",
-              "ask for additional details if you can't reach the length"
-            ),
+            description:
+              "REQUIRED! Minimum one word. The product description. Must include several sentences with description and keywords to find a product",
           },
         },
         required: ["description"],
@@ -83,4 +77,4 @@ export class ListPharmaProductByDescriptionTool implements IAgentTool<Params> {
   });
 }
 
-export default ListPharmaProductByDescriptionTool;
+export default SearchPharmaProductTool;

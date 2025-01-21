@@ -15,4 +15,4 @@ process.kill = (statuscode) => {
 }
 
 ioc.loggerService.setPrefix("host-repl");
-ioc.loggerService.setDebug(true);
+ioc.loggerService.setDebug(false);

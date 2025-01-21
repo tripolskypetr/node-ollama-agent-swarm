@@ -6,13 +6,13 @@ import {
   IProductRow,
   ProductModel,
 } from "src/schema/Product.schema";
-import { pickDocuments } from "functools-kit";
+import { SortedArray } from "functools-kit";
 import LoggerService from "../base/LoggerService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
 import ContextService, { TContextService } from "../base/ContextService";
 import EmbeddingService from "../api/EmbeddingService";
-import { CC_VECTOR_SEARCH_LIMIT } from "src/config/params";
+import { CC_VECTOR_SEARCH_LIMIT, CC_VECTOR_SEARCH_SIMILARITY } from "src/config/params";
 
 export class ProductDbService extends BaseCRUD(ProductModel) {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
@@ -24,9 +24,6 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     const payload: Partial<IProductDocument> = { ...dto };
     payload.createdAt = new Date();
     payload.updatedAt = new Date();
-    payload.embeddings = await this.embeddingService.createEmbedding(
-      dto.description
-    );
     return await super.create(payload);
   };
 
@@ -34,9 +31,6 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     this.loggerService.logCtx(`productDbService update`, { dto });
     const payload: Partial<IProductDocument> = { ...dto };
     payload.updatedAt = new Date();
-    payload.embeddings = await this.embeddingService.createEmbedding(
-      [dto.title, dto.description].toString()
-    );
     return await super.update(id, payload);
   };
 
@@ -45,34 +39,37 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     return await super.remove(id);
   };
 
-  public findByDescription = async (search: string): Promise<IProductRow[]> => {
-    this.loggerService.logCtx(`productDbService findByDescription`, { search });
+  public findByFulltext = async (search: string): Promise<IProductRow[]> => {
+    this.loggerService.logCtx(`productDbService findByFulltext`, { search });
     const embeddings = await this.embeddingService.createEmbedding(search);
-    const iter = pickDocuments<IProductRow>(CC_VECTOR_SEARCH_LIMIT, 0);
+    const items = new SortedArray();
     for await (const row of this.iterate()) {
-      if (
-        await this.embeddingService.compareEmbeddings(
-          row.embeddings,
+      const descriptionEmbeddings = await this.embeddingService.createEmbedding(
+        row.description,
+      );
+      const keywordsEmbeddings = await this.embeddingService.createEmbedding(
+        row.keywords.join(" "),
+      );
+      const titleEmbeddings = await this.embeddingService.createEmbedding(
+        row.title,
+      );
+      const rowScores = await Promise.all([
+        this.embeddingService.calculateEmbeddings(
+          titleEmbeddings,
           embeddings
-        )
-      ) {
-        iter([row]);
-      }
+        ),
+        this.embeddingService.calculateEmbeddings(
+          descriptionEmbeddings,
+          embeddings
+        ),
+        this.embeddingService.calculateEmbeddings(
+          keywordsEmbeddings,
+          embeddings
+        ),
+      ]);
+      items.push(row, Math.max(...rowScores));
     }
-    return iter().rows;
-  };
-
-  public findByKeywords = async (
-    keywords: string[]
-  ): Promise<IProductRow[]> => {
-    this.loggerService.logCtx(`productDbService findByKeywords`, { keywords });
-    const iter = pickDocuments<IProductRow>(CC_VECTOR_SEARCH_LIMIT, 0);
-    for await (const row of this.iterate()) {
-      if (keywords.some((keyword) => row.keywords.includes(keyword))) {
-        iter([row]);
-      }
-    }
-    return iter().rows;
+    return items.take(CC_VECTOR_SEARCH_LIMIT, CC_VECTOR_SEARCH_SIMILARITY);
   };
 
   public findAll = async (
