@@ -105,7 +105,7 @@ export class ClientAgent implements IAgent {
       `ClientAgent agentName=${this.params.agentName} _emitOuput`
     );
     if (!result) {
-      const result = await this._resurrectModel();
+      const result = await this._resurrectModel("Empty output");
       if (!result) {
         throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed`);
       }
@@ -118,12 +118,17 @@ export class ClientAgent implements IAgent {
     return;
   }
 
-  _resurrectModel = async () => {
+  _resurrectModel = async (reason?: string) => {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} _resurrectModel`
     );
     {
       await this.clientHistoryDbService.clear(this.params.agentName);
+      await this.clientHistoryDbService.push(this.params.agentName, {
+        role: 'resque',
+        agentName: this.params.agentName,
+        content: reason || 'Unknown error',
+      });
       await this.beginChat();
       await this.clientHistoryDbService.push(this.params.agentName, {
         role: "user",
@@ -219,7 +224,6 @@ export class ClientAgent implements IAgent {
     for (const message of messages) {
       await this.clientHistoryDbService.push(this.params.agentName, {
         role: "user",
-
         agentName: this.params.agentName,
         content: message.trim(),
       });
@@ -242,7 +246,7 @@ export class ClientAgent implements IAgent {
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool function not found`
           );
-          const result = await this._resurrectModel();
+          const result = await this._resurrectModel(`No target function for ${tool.function.name}`);
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
           );
@@ -253,7 +257,7 @@ export class ClientAgent implements IAgent {
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} functionName=${tool.function.name} tool validation not passed`
           );
-          const result = await this._resurrectModel();
+          const result = await this._resurrectModel(`Function validation failed: name=${tool.function.name} arguments=${JSON.stringify(tool.function.arguments)}`);
           this.loggerService.debugCtx(
             `ClientAgent agentName=${this.params.agentName} execute end result=${result}`
           );
@@ -298,8 +302,8 @@ export class ClientAgent implements IAgent {
         { result }
       );
     if (isInvalid) {
-      const result = await this._resurrectModel();
-      await this._emitOuput(result);
+      const result1 = await this._resurrectModel(`Invalid model output: ${result}`);
+      await this._emitOuput(result1);
       return;
     }
     this.loggerService.debugCtx(

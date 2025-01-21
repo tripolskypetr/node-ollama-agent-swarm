@@ -208,6 +208,7 @@ declare const ClientSwarmDbService_base: (new () => {
     };
 }, "prototype">;
 declare class ClientSwarmDbService extends ClientSwarmDbService_base {
+    private readonly getMap;
     setWithKeepExpire: (key: string, value: any) => Promise<void>;
     set: (key: string, value: any) => Promise<void>;
     get: (key: string) => Promise<any | null>;
@@ -278,7 +279,6 @@ declare class ProductDbService extends ProductDbService_base {
         rows: any[];
         total: number;
     }>;
-    protected init: (() => Promise<void>) & functools_kit.ISingleshotClearable;
 }
 
 interface IProductInternal {
@@ -330,7 +330,7 @@ declare class ClientHistoryDbService implements THistory {
     toArrayForAgent: (agentName: AgentName$1) => Promise<IModelMessage[]>;
     toArrayForRaw: (agentName: AgentName$1) => Promise<IModelMessage[]>;
     push: (agentName: AgentName$1, message: IModelMessage) => Promise<void>;
-    pop: (agentName: AgentName$1) => Promise<any>;
+    pop: (agentName: AgentName$1) => Promise<IModelMessage>;
     clear: (agentName: AgentName$1) => Promise<void>;
     dispose: (agentName: AgentName$1) => Promise<void>;
 }
@@ -347,7 +347,7 @@ declare class ClientCartDbService implements TCart {
     length: (agentName: AgentName$1) => Promise<number>;
     toArray: (agentName: AgentName$1) => Promise<ICartItem[]>;
     push: (agentName: AgentName$1, message: ICartItem) => Promise<void>;
-    pop: (agentName: AgentName$1) => Promise<any>;
+    pop: (agentName: AgentName$1) => Promise<ICartItem>;
     clear: (agentName: AgentName$1) => Promise<void>;
     dispose: (agentName: AgentName$1) => Promise<void>;
 }

@@ -24,19 +24,54 @@ export interface IHistory {
   dispose(): Promise<void>;
 }
 
+const MESSAGE_INIT_FN = Symbol("init");
+
 export class ClientHistory implements IHistory {
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
 
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  getMessageList = singleshot(() => {
-    const Ctor = BaseList(
+  getMessageList = singleshot(async () => {
+
+    class MessageList extends BaseList(
       `node-ollama-agent-swarm__clientHistoryChat__${this.params.clientId}`,
       {
         TTL_EXPIRE_SECONDS: CC_CLIENT_SESSION_EXPIRE_SECONDS,
       }
-    );
-    return new Ctor();
+    ) {
+
+      _items: IModelMessage[] = [];
+
+      public push = async (message: IModelMessage) => {
+        console.log({ message })
+        await super.push(message);
+        this._items.push(message);
+      };
+
+      public pop = async () => {
+        await super.pop();
+        return this._items.pop();
+      };
+
+      public length = async () => {
+        return this._items.length;
+      };
+
+      public clear = async () => {
+        await super.clear();
+        this._items.splice(0, this._items.length);
+      };
+     
+      public [MESSAGE_INIT_FN] = async () => {
+        for await (const item of this) {
+          console.log(item)
+          this._items.push(item);
+        }
+      }
+    }
+    const instance = new MessageList();
+    await instance[MESSAGE_INIT_FN]();
+    return instance;
   });
 
   constructor(readonly params: IHistoryParams) {}
@@ -70,9 +105,8 @@ export class ClientHistory implements IHistory {
     this.loggerService.debugCtx(
       `ClientHistory agentName=${this.params.agentName} clear`
     );
-    while (await this.length()) {
-      await this.pop();
-    }
+    const messages = await this.getMessageList();
+    return await messages.clear();
   };
 
   toArrayForRaw = async () => {
@@ -96,6 +130,9 @@ export class ClientHistory implements IHistory {
     for await (const content of messages) {
       const message: IModelMessage = content;
       let isOk = true;
+      if (message.role === "resque") {
+        isOk = false;
+      }
       if (message.role === "system") {
         isOk = isOk && message.agentName === this.params.agentName;
       }

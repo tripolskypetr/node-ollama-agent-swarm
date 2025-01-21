@@ -21,19 +21,51 @@ export interface ICart {
   dispose(): Promise<void>;
 }
 
+const CART_INIT_FN = Symbol("init");
+
 export class ClientCart implements ICart {
   readonly rootSwarmService = inject<RootSwarmService>(TYPES.rootSwarmService);
 
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
-  getCartList = singleshot(() => {
-    const Ctor = BaseList(
+  getCartList = singleshot(async () => {
+
+    class CartList extends BaseList(
       `node-ollama-agent-swarm__clientCartList__${this.params.clientId}`,
       {
         TTL_EXPIRE_SECONDS: CC_CLIENT_SESSION_EXPIRE_SECONDS,
       }
-    );
-    return new Ctor();
+    ) {
+      _items: ICartItem[] = [];
+
+      public push = async (message: ICartItem) => {
+        await super.push(message);
+        this._items.push(message);
+      };
+
+      public pop = async () => {
+        await super.pop();
+        return this._items.pop();
+      };
+
+      public length = async () => {
+        return this._items.length;
+      };
+
+      public clear = async () => {
+        await super.clear();
+        this._items.splice(0, this._items.length);
+      };
+
+      public [CART_INIT_FN] = async () => {
+        for await (const item of this) {
+          this._items.push(item);
+        }
+      };
+    }
+    const instance = new CartList();
+    await instance[CART_INIT_FN]();
+    return instance;
   });
 
   constructor(readonly params: ICartParams) {}

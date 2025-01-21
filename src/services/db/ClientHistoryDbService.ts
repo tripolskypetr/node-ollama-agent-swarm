@@ -78,7 +78,7 @@ export class ClientHistoryDbService implements THistory {
       this.contextService.context.clientId,
       agentName
     ).dispose();
-    this.getClientHistory.clear(this.contextService.context.clientId);
+    return Promise.resolve();
   };
 }
 

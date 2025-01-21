@@ -6,7 +6,7 @@ import {
   IProductRow,
   ProductModel,
 } from "src/schema/Product.schema";
-import { memoize, singleshot, SortedArray } from "functools-kit";
+import { memoize, SortedArray } from "functools-kit";
 import LoggerService from "../base/LoggerService";
 import { inject } from "src/core/di";
 import TYPES from "src/config/types";
@@ -137,22 +137,6 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
     }
     return await super.paginate(query, pagination);
   };
-
-  protected init = singleshot(async () => {
-    this.loggerService.log(`productDbService init`);
-
-    const prefetch = async () => {
-      for await (const row of this.iterate()) {
-        this.getEmbedding(row);
-      }  
-    };
-
-    await ContextService.runInContext(async () => {
-      await prefetch();
-    }, {
-      clientId: "productDbService-prefetch",
-    })
-  });
 }
 
 export default ProductDbService;
