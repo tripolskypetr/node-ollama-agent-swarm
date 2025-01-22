@@ -12,6 +12,7 @@ import { TContextService } from "src/services/base/ContextService";
 import validateNoToolCall from "src/validation/validateNoToolCall";
 import { IModelMessage } from "src/model/ModelMessage.model";
 import ClientHistoryDbService from "src/services/db/ClientHistoryDbService";
+import validateNoEmptyResult from "src/validation/validateNoEmptyResult";
 
 /**
  * @see https://github.com/ollama/ollama/blob/86a622cbdc69e9fd501764ff7565e977fc98f00a/server/model.go#L158
@@ -104,10 +105,13 @@ export class ClientAgent implements IAgent {
     this.loggerService.debugCtx(
       `ClientAgent agentName=${this.params.agentName} _emitOuput`
     );
-    if (!result) {
+    if (await not(validateNoEmptyResult(result))) {
       const result = await this._resurrectModel("Empty output");
-      if (!result) {
-        throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed`);
+      if (await not(validateNoEmptyResult(result))) {
+        throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed: empty output`);
+      }
+      if (await not(validateNoToolCall(result))) {
+        throw new Error(`clientAgent agentName=${this.params.agentName} model ressurect failed: invalid tool call`);
       }
       await this.connectionPrivateService.emit(result, this.params.agentName);
       this._outputSubject.next(result);
@@ -137,7 +141,7 @@ export class ClientAgent implements IAgent {
     }
     const response = await this.getCompletion();
     const result = response.message.content;
-    if (!result) {
+    if (await not(validateNoEmptyResult(result))) {
       this.loggerService.debugCtx(
         `ClientAgent agentName=${this.params.agentName} _resurrectModel empty output`
       );

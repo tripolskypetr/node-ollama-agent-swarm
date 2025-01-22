@@ -80,7 +80,10 @@ export class ProductDbService extends BaseCRUD(ProductModel) {
           embeddings
         ),
       ]);
-      items.push(row, Math.max(...rowScores));
+      const score = Math.max(...rowScores);
+      if (score > CC_VECTOR_SEARCH_SIMILARITY) {
+        items.push(row, score);
+      }
     }
     return items.take(CC_VECTOR_SEARCH_LIMIT, CC_VECTOR_SEARCH_SIMILARITY);
   };

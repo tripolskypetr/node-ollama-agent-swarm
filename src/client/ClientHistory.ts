@@ -32,18 +32,15 @@ export class ClientHistory implements IHistory {
   readonly loggerService = inject<LoggerService>(TYPES.loggerService);
 
   getMessageList = singleshot(async () => {
-
     class MessageList extends BaseList(
       `node-ollama-agent-swarm__clientHistoryChat__${this.params.clientId}`,
       {
         TTL_EXPIRE_SECONDS: CC_CLIENT_SESSION_EXPIRE_SECONDS,
       }
     ) {
-
       _items: IModelMessage[] = [];
 
       public push = async (message: IModelMessage) => {
-        console.log({ message })
         await super.push(message);
         this._items.push(message);
       };
@@ -61,13 +58,26 @@ export class ClientHistory implements IHistory {
         await super.clear();
         this._items.splice(0, this._items.length);
       };
-     
+
+      [Symbol.iterator]() {
+        let index = 0;
+        const items = this._items;
+        return {
+          next: () => {
+            if (index < items.length) {
+              return { value: items[index++], done: false };
+            } else {
+              return { value: undefined, done: true };
+            }
+          },
+        };
+      }
+
       public [MESSAGE_INIT_FN] = async () => {
         for await (const item of this) {
-          console.log(item)
           this._items.push(item);
         }
-      }
+      };
     }
     const instance = new MessageList();
     await instance[MESSAGE_INIT_FN]();
@@ -115,7 +125,7 @@ export class ClientHistory implements IHistory {
     );
     const result: IModelMessage[] = [];
     const messages = await this.getMessageList();
-    for await (const message of messages) {
+    for (const message of messages) {
       result.push(message);
     }
     return result;
@@ -125,30 +135,40 @@ export class ClientHistory implements IHistory {
     this.loggerService.debugCtx(
       `ClientHistory agentName=${this.params.agentName} toArrayForAgent`
     );
-    const result: IModelMessage[] = [];
+    const commonMessagesRaw: IModelMessage[] = [];
+    const systemMessagesRaw: IModelMessage[] = [];
     const messages = await this.getMessageList();
-    for await (const content of messages) {
+    for (const content of messages) {
       const message: IModelMessage = content;
-      let isOk = true;
       if (message.role === "resque") {
-        result.splice(0, result.length);
+        commonMessagesRaw.splice(0, commonMessagesRaw.length);
+        systemMessagesRaw.splice(0, systemMessagesRaw.length);
         continue;
       }
       if (message.role === "system") {
-        isOk = isOk && message.agentName === this.params.agentName;
-      }
-      if (message.tool_calls) {
-        isOk = isOk && message.agentName === this.params.agentName;
-      }
-      if (isOk) {
-        result.push(message);
+        systemMessagesRaw.push(message);
+      } else {
+        commonMessagesRaw.push(message);
       }
     }
-    const systemMessages = result.filter(({ role }) => role === "system");
-    const commonMessages = result
-      .filter(({ role }) => role !== "system")
+    const systemMessages = systemMessagesRaw.filter(
+      ({ agentName }) => agentName === this.params.agentName
+    );
+    const commonMessages = commonMessagesRaw
+      .filter(({ role, agentName, tool_calls }) => {
+        let isOk = true;
+        if (role === "tool") {
+          isOk = isOk && agentName === this.params.agentName;
+        }
+        if (tool_calls) {
+          isOk = isOk && agentName === this.params.agentName;
+        }
+        return isOk;
+      })
       .slice(-CC_OLLAMA_MESSAGES);
-    return [...systemMessages, ...commonMessages];
+    const list = [...systemMessages, ...commonMessages];
+    console.log({list})
+    return list;
   };
 
   dispose = async () => {
