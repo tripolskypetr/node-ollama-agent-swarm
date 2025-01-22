@@ -74,7 +74,7 @@ export class ClientHistory implements IHistory {
       }
 
       public [MESSAGE_INIT_FN] = async () => {
-        for await (const item of this) {
+        for await (const item of super.iterate()) {
           this._items.push(item);
         }
       };

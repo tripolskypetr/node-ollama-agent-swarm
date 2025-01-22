@@ -110,6 +110,10 @@ export const BaseList = factory(class {
     }
   }
 
+  iterate(): AsyncIterableIterator<any> {
+    return this[Symbol.asyncIterator]();
+  }
+
   async clear(): Promise<void> {
     this.loggerService.debug(`BaseList clear connection=${this.connectionKey}`);
     const redis = await this.redisService.getRedis();
