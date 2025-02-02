@@ -1,8 +1,13 @@
-# 🔥 node-ollama-agent-swarm 
+# node-ollama-agent-swarm 
 
 > [The OpenAI Agent Swarm](https://github.com/openai/swarm) pattern implementation for [OllamaJS](https://github.com/ollama/ollama-js). Includes TTS synthesis and speech recognition for simplified testing and interaction.
 
 ![screenshot](./screenshot.png)
+
+## WARNING Obsolete
+
+> [!IMPORTANT]
+> There is an [upgraded starter kit](https://github.com/tripolskypetr/node-ollama-telegram-agent-swarm) version which defenitely should be used for starting new projects. It includes boilerplate code reduction, the agent could be deployed in few lines of code without DI declaration
 
 ## Main concept
 
