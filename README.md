@@ -7,7 +7,7 @@
 ## WARNING Obsolete
 
 > [!IMPORTANT]
-> There is an [upgraded starter kit](https://github.com/tripolskypetr/node-ollama-telegram-agent-swarm) version which defenitely should be used for starting new projects. It includes boilerplate code reduction, the agent could be deployed in few lines of code without DI declaration
+> 👉 There is an [upgraded starter kit](https://github.com/tripolskypetr/node-ollama-telegram-agent-swarm) version which defenitely should be used for starting new projects. It includes boilerplate code reduction, the agent could be deployed in few lines of code without DI declaration
 
 ## Main concept
 
